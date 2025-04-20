@@ -4,14 +4,14 @@
 The CYBER Project is a news aggregation and processing system designed to retrieve, process, summarize, and distribute news articles from various RSS feeds. The project includes functionalities for text cleaning, summarization, and sending updates to platforms like Telegram and Microsoft Teams.
 
 ##Features
-🔎 Retrieve cyber news from multiple country-specific RSS feeds
-🧼 Clean and normalize article text and metadata
-🧠 Summarize full articles using a pre-trained transformer model (BART)
-🔁 Eliminate duplicates using title, url, and text_hash
-📤 Send to Telegram and Teams with formatted message
-📂 Track skipped articles with reasons, dates, and fail counts
-🪵 Store logs for monitoring and debugging
-🔐 Use a lock file to avoid parallel runs
+`🔎 Retrieve cyber news from multiple country-specific RSS feeds`
+`🧼 Clean and normalize article text and metadata`
+`🧠 Summarize full articles using a pre-trained transformer model (BART)`
+`🔁 Eliminate duplicates using title, url, and text_hash`
+`📤 Send to Telegram and Teams with formatted message`
+`📂 Track skipped articles with reasons, dates, and fail counts`
+`🪵 Store logs for monitoring and debugging`
+`🔐 Use a lock file to avoid parallel runs`
 
 ## Project Structure
 - `main.py`: Entry point for the application.
