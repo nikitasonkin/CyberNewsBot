@@ -69,4 +69,5 @@ The CYBER Project is a news aggregation and processing system designed to retrie
 ## License
 -`This project is licensed under the MIT License.`
 
-## Author Created and maintained by Nikita Sonkin.
+## Author
+Created and maintained by Nikita Sonkin.
