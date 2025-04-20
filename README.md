@@ -57,16 +57,16 @@ The CYBER Project is a news aggregation and processing system designed to retrie
 - `transformers`
 
 
-##Output Files
+## Output Files
 - ` posted_news_ud.json: All articles sent to Telegram/Teams `
 - `skipped_news_ud.json: Articles skipped with reason, timestamp, and fail count`
 - ` app.log: Debug logs and events`
 - ` run_times.txt: Each run’s timestamp`
 
-##Logging
+## Logging
 -`Logs are stored in app.log and include detailed information about the script's execution, including errors and processed articles.`
 
-##License
+## License
 -`This project is licensed under the MIT License.`
 
-##Author Created and maintained by Nikita Sonkin.
+## Author Created and maintained by Nikita Sonkin.
