@@ -1,9 +1,9 @@
-##CyberNewsBot 🛡️
+## CyberNewsBot 🛡️
 
 ## Overview
 The CYBER Project is a news aggregation and processing system designed to retrieve, process, summarize, and distribute news articles from various RSS feeds. The project includes functionalities for text cleaning, summarization, and sending updates to platforms like Telegram and Microsoft Teams.
 
-##Features
+## Features
 `🔎 Retrieve cyber news from multiple country-specific RSS feeds`
 `🧼 Clean and normalize article text and metadata`
 `🧠 Summarize full articles using a pre-trained transformer model (BART)`
