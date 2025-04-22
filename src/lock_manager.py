@@ -15,7 +15,7 @@ from bs4 import BeautifulSoup
 from transformers import pipeline
 from newspaper import Article, ArticleException
 import torch
-import psutil  # תוסיף לייבוא אם עדיין אין
+import psutil  
 from nltk.tokenize import word_tokenize
 import hashlib
 import requests
@@ -35,9 +35,10 @@ def create_lock():
 
 #2
 def remove_lock():
-    """מוחק את קובץ הנעילה כשמסיימים את הריצה"""
+    """Removes the lock file after execution is complete."""
     if os.path.exists(LOCK_FILE):
         os.remove(LOCK_FILE)
+
 
 #3
 def is_script_running():
@@ -48,16 +49,17 @@ def is_script_running():
         with open(LOCK_FILE, "r") as f:
             pid = int(f.read().strip())
             if is_process_running(pid):
-                print("⚠️ הסקריפט כבר רץ (PID: {})".format(pid))
+                print("⚠️ Script is already running (PID: {})".format(pid))
                 return True
             else:
-                print("🧹 תהליך מת - מנקה קובץ נעילה ישן")
+                print("🧹 Stale process detected – cleaning up old lock file.")
                 remove_lock()
                 return False
     except Exception as e:
-        print(f"⚠️ שגיאה בקריאת קובץ נעילה: {e}")
+        print(f"⚠️ Error reading lock file: {e}")
         remove_lock()
         return False
+
 
 #4
 def is_process_running(pid):
