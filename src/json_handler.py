@@ -114,7 +114,7 @@ def save_skipped_news(skipped_articles):
 
     for article in skipped_articles:
         article_id = article["id"]
-        reason = article.get("reason", "לא ידוע")
+        reason = article.get("reason", "Unknown")
         title = article.get("title", "")
         url = article.get("url", "")
         summary = article.get("summary", "")
