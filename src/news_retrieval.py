@@ -27,7 +27,7 @@ from config import logger, RSS_FEED_URL, rss_country_map
 from text_processing import clean_text, clean_url, clean_title_for_matching, compute_text_hash, extract_source_from_url, extract_keywords
 from json_handler import load_posted_news, load_skipped_news
 
-#פונקציות לשליפת חדשות
+
 #---------------------------------------------------------------------------------------------------------------------------------------------------------
 #1
 def get_google_alerts(time_range=1):
