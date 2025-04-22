@@ -16,7 +16,7 @@ from bs4 import BeautifulSoup
 from transformers import pipeline
 from newspaper import Article, ArticleException
 import torch
-import psutil  # תוסיף לייבוא אם עדיין אין
+import psutil  
 from nltk.tokenize import word_tokenize
 import hashlib
 import requests
@@ -29,23 +29,24 @@ import urllib.parse
 
 #1
 def clean_url(url):
-    # הסרת פרמטרים מהלינק
+    # Remove query parameters from the URL
     parsed_url = urlparse(url)
     clean_url = f"{parsed_url.scheme}://{parsed_url.netloc}{parsed_url.path}"
     print(f"[CLEAN_URL] Cleaned: {clean_url}")
     return clean_url
 
+
 #2
 def clean_title(title):
-    """ לניקוי בסיסי לצורכי הצגה בלבד """
+    """Performs basic title cleaning for display purposes only."""
     return BeautifulSoup(title, "html.parser").get_text().strip()
 #3
 def clean_title_for_matching(title):
     """
-    ניקוי כותרת לצורך השוואה בלבד:
-    - הורדת HTML
-    - אותיות קטנות
-    - הסרת סיומות כמו ' - מקור' או ' | אתר'
+    Cleans the title for matching purposes only:
+    - Removes HTML tags
+    - Converts to lowercase
+    - Removes suffixes like ' - Source' or ' | Website'
     """
     title = BeautifulSoup(title, "html.parser").get_text()
     title = title.strip().lower()
@@ -54,7 +55,7 @@ def clean_title_for_matching(title):
 
 
 #4
-# 🔹 ניקוי טקסט מ-HTML
+# 🔹 Clean text from HTML tags
 def clean_text(raw_text):
     soup = BeautifulSoup(raw_text, "html.parser")
     text = soup.get_text()
@@ -64,18 +65,18 @@ def clean_text(raw_text):
 def safe_text_cut(text, max_words=500):
     words = text.split()
     if len(words) > max_words:
-        print(f"⚠️ טקסט ארוך מ-{max_words} מילים, מבצע חיתוך.")
+        print(f"⚠️ Text exceeds {max_words} words – trimming.")
         return " ".join(words[:max_words])
     return text
 
 #6
 def is_summary_relevant(summary, title, threshold=2):
-    """בודק האם תקציר מכיל לפחות n מילים מתוך הכותרת"""
+    """Checks if the summary contains at least `n` words from the title."""
     return extract_text_relevance(summary, title.split()) >= threshold
 
 #7
 def is_youtube_link(url):
-    """בודק אם ה-URL הוא של YouTube"""
+    """Checks whether the given URL is a YouTube link."""
     parsed_url = urllib.parse.urlparse(url)
     return "youtube.com" in parsed_url.netloc or "youtu.be" in parsed_url.netloc
 
@@ -87,19 +88,19 @@ def extract_text_relevance(text, keywords):
     try:
         text_tokens = set(word_tokenize(text.lower()))
         keyword_tokens = set(word.lower() for word in keywords)
-        return len(text_tokens & keyword_tokens)  # חיתוך בין שתי קבוצות
+        return len(text_tokens & keyword_tokens)  # Intersection between tokens
     except Exception as e:
-        print(f"⚠️ שגיאה ב-tokenize: {e}")
+        print(f"⚠️ Error during tokenization: {e}")
         return 0
 
 #9
 def compute_text_hash(text):
     """
-    יוצר hash מהתוכן לאחר ניקוי HTML ורווחים.
-    משמש לזיהוי כתבות כפולות גם אם ה-URL או הכותרת שונים.
+    Generates a hash from the content after removing HTML and extra whitespace.
+    Used to identify duplicate articles even if the URL or title is different.
     """
     if not text or not isinstance(text, str):
-        return None  # מגן בפני קריסות
+        return None  # Prevents crashes on invalid input
 
     cleaned = clean_text(text).strip().lower()
     return hashlib.sha256(cleaned.encode("utf-8")).hexdigest()
