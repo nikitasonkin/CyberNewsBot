@@ -359,7 +359,7 @@ def send_to_teams(message, webhook_url, retries=3, delay=5):
                     print(f"⏳ Received HTTP 429 – retrying in {retry_after} seconds...")
                     time.sleep(retry_after)
                 else:
-                    print(f"❌ Failed to send message to Teams: {e} - סטטוס: {response.status_code}")
+                    print(f"❌ Failed to send message to Teams: {e} - status: {response.status_code}")
                     break
             except requests.exceptions.RequestException as e:
                 print(f"⚠️ Communication error with Teams: {e}")
