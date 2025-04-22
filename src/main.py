@@ -15,7 +15,7 @@ from bs4 import BeautifulSoup
 from transformers import pipeline
 from newspaper import Article, ArticleException
 import torch
-import psutil  # תוסיף לייבוא אם עדיין אין
+import psutil 
 from nltk.tokenize import word_tokenize
 import hashlib
 import requests
@@ -32,16 +32,17 @@ from news_retrieval import filter_new_articles
 
 
 #1
-# 🔹 הפעלת התהליך
+# 🔹 Starting the process
 def process_and_send_articles():
-    print("📬 נכנס ל־process_and_send_articles()")
+    print("📬 Entered process_and_send_articles()")
     articles = get_google_alerts()
     new_articles = filter_new_articles(articles)
 
     if new_articles:
         post_articles_to_telegram(new_articles)
     else:
-        print("📭 אין חדשות חדשות להיום.")
+        print("📭 No new articles for today.")
+
 
 LOCK_FILE = "script_running.lock"
 
@@ -49,54 +50,55 @@ LOCK_FILE = "script_running.lock"
 if __name__ == "__main__":
     now = datetime.now()
     os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
-
-    print("התחלת main – הקוד התחיל לרוץ")
+    print("[INFO] Main execution started.")
 
     try:
         nltk.data.find("tokenizers/punkt")
-        print("משאב 'punkt' זמין.")
-    except LookupError:
-        nltk.download("punkt")
-        print("'punkt' הותקן.")
+        print("NLTK resource 'punkt' is available.")
+except LookupError:
+    nltk.download("punkt")
+    print("NLTK resource 'punkt' has been downloaded.")
+
 
     try:
         nltk.data.find("tokenizers/punkt_tab")
-        print("משאב 'punkt_tab' זמין.")
-    except LookupError:
-        nltk.download("punkt_tab")
-        print("'punkt_tab' הותקן.")
+        print("NLTK resource 'punkt_tab' is available.")
+except LookupError:
+    nltk.download("punkt_tab")
+    print("NLTK resource 'punkt_tab' has been downloaded.")
+
 
     try:
         with open("run_times.txt", "a", encoding="utf-8") as f:
-            f.write(f"הרצה התחילה ב- {now.strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write(f"Execution started at {now.strftime('%Y-%m-%d %H:%M:%S')}\n")
 
         with open("log.txt", "a", encoding="utf-8") as f:
-            f.write(f"\n=== התחלה חדשה ב- {now.strftime('%Y-%m-%d %H:%M:%S')} ===\n")
+            f.write(f"\n=== New run started at {now.strftime('%Y-%m-%d %H:%M:%S')} ===\n")
 
-        print("מנסה לשלוח הודעת התחלה בטלגרם...")
-        send_telegram_message(f"הרצה התחילה ב- {now.strftime('%Y-%m-%d %H:%M:%S')}")
-        print("הודעת טלגרם נשלחה")
+        print("Attempting to send startup message via Telegram...")
+        send_telegram_message(f"Execution started at {now.strftime('%Y-%m-%d %H:%M:%S')}")
+        print("Telegram message sent.")
 
-        print("בודק אם הסקריפט כבר רץ...")
+        print("Checking if script is already running...")
         if is_script_running():
-            print("הסקריפט כבר רץ. יוצא.")
+            print("Script is already running. Exiting.")
             sys.exit(0)
 
-        print("יוצר קובץ נעילה...")
+        print("Creating lock file...")
         create_lock()
 
         try:
-            print("מתחיל לעבד ולשלוח כתבות...")
+            print("Starting to process and send articles...")
             process_and_send_articles()
-            print("סיום תקין של process_and_send_articles()")
+            print("✅ process_and_send_articles() completed successfully.")
         except Exception as e:
-            print(f"שגיאה כללית בהרצה: {e}")
-            send_telegram_message(f"❌ שגיאה כללית בהרצה: {e}")
+            print(f"❌ General error during execution: {e}")
+            send_telegram_message(f"❌ General error during execution: {e}")
 
     finally:
-        print("מנקה קובץ נעילה...")
+        print("Cleaning up lock file...")
         remove_lock()
-        print("סיום סופי. יוצא מיידית.")
+        print("Final cleanup complete. Exiting now.")
         sys.stdout.flush()
         sys.stderr.flush()
         os._exit(0)
