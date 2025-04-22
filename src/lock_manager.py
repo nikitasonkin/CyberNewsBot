@@ -31,7 +31,7 @@ def create_lock():
     with open(LOCK_FILE, "w") as f:
         pid = os.getpid()
         f.write(str(pid))
-    print(f"🔒 קובץ נעילה נוצר עם PID: {pid}")
+    print(f"🔒 Lock file created with PID: {pid}")
 
 #2
 def remove_lock():
