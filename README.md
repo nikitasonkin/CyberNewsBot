@@ -25,7 +25,6 @@ The CYBER Project is a news aggregation and processing system designed to retrie
 - `requirements.txt`: Lists all dependencies required for the project.
 - `posted_news_ud.json`: Stores metadata of successfully posted news articles.
 - `skipped_news_ud.json`: Tracks articles that failed processing.
-- `run_times.txt`: Logs the execution times of the script.
 
 ## Setup
 1. Clone the repository.
@@ -62,9 +61,6 @@ The CYBER Project is a news aggregation and processing system designed to retrie
 - `skipped_news_ud.json: Articles skipped with reason, timestamp, and fail count`
 - ` app.log: Debug logs and events`
 - ` run_times.txt: Each run’s timestamp`
-
-## Logging
--`Logs are stored in app.log and include detailed information about the script's execution, including errors and processed articles.`
 
 ## License
 -`This project is licensed under the MIT License.`
