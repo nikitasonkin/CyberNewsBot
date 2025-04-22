@@ -18,7 +18,7 @@ from bs4 import BeautifulSoup
 from transformers import pipeline
 from newspaper import Article, ArticleException
 import torch
-import psutil  # תוסיף לייבוא אם עדיין אין
+import psutil  
 from nltk.tokenize import word_tokenize
 import hashlib
 import requests
@@ -55,9 +55,10 @@ def save_posted_news(posted_news):
         with open(temp_file, "w", encoding="utf-8") as f:
             json.dump(posted_news, f, ensure_ascii=False, indent=4)
         os.replace(temp_file, POSTED_NEWS_FILE)
-        print(f"📂 נשמרו {len(posted_news)} כתבות שנשלחו.")
+        print(f"📂 {len(posted_news)} posted articles saved successfully.")
     except Exception as e:
-        print(f"⚠️ שגיאה בשמירת posted_news: {e}")
+        print(f"⚠️ Error while saving posted_news: {e}")
+
 
 
 #4
@@ -67,7 +68,7 @@ def load_skipped_news():
     if isinstance(skipped_articles, list):
         skipped_articles = {article["id"]: article for article in skipped_articles}
 
-    # ניקוי ישנים/כושלים
+# Cleaning old/failed
     cutoff_date = datetime.today() - timedelta(days=14)
     filtered = {}
 
@@ -120,9 +121,9 @@ def save_skipped_news(skipped_articles):
         source = article.get("source", extract_source_from_url(url))
         published_date = article.get("published_date", today_date)
         published_time = article.get("published_time", current_time)
-        rss_source = article.get("rss_source", "Unknown")  # קריאה לשדה המדינה אם קיים
+        rss_source = article.get("rss_source", "Unknown") # Call the country field if it exists
 
-        # חישוב hash אם חסר
+        # Calculate hash if missing
         text_hash = article.get("text_hash") or compute_text_hash(summary)
 
         if article_id in existing_skipped:
@@ -154,4 +155,4 @@ def save_skipped_news(skipped_articles):
     with open(skipped_file, "w", encoding="utf-8") as f:
         json.dump(existing_skipped, f, ensure_ascii=False, indent=4)
 
-    print(f"📂 נשמרו {len(skipped_articles)} כתבות חדשות ברשימת הכשלונות. סה״כ {len(existing_skipped)} כתבות נכשלו בעבר.")
+    print(f"[INFO] Skipped list updated: {len(skipped_articles)} new, {len(existing_skipped)} total.")
