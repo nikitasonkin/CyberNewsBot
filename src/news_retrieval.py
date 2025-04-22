@@ -13,7 +13,7 @@ from bs4 import BeautifulSoup
 from transformers import pipeline
 from newspaper import Article, ArticleException
 import torch
-import psutil  # תוסיף לייבוא אם עדיין אין
+import psutil  
 from nltk.tokenize import word_tokenize
 import hashlib
 import requests
@@ -32,9 +32,10 @@ from json_handler import load_posted_news, load_skipped_news
 #1
 def get_google_alerts(time_range=1):
     """
-    שולף כתבות מ-RSS שהוגדרו מראש.
-    :param time_range: מספר הימים לאחור לשליפת חדשות (ברירת מחדל: 1 - היום הנוכחי)
-    :return: רשימת כתבות חדשות עם שדות נוספים
+    Retrieves articles from predefined RSS feeds.
+    
+    :param time_range: Number of days back to fetch news (default: 1 – today's news)
+    :return: A list of new articles with additional metadata
     """
     articles = []
     today = datetime.today().date()
@@ -48,11 +49,11 @@ def get_google_alerts(time_range=1):
             feed = feedparser.parse(response.text)
 
             if not feed.entries:
-                print(f"⚠️ אין כתבות ב-RSS: {rss_url}")
+                print(f"⚠️ No articles found in RSS: {rss_url}")
                 continue
 
-            print(f"📡 מקור RSS: {rss_url} - נמצאו {len(feed.entries)} כתבות.")
-            rss_source = rss_country_map.get(rss_url, "Unknown")  # כאן מוסף שדה המדינה
+            print(f"📡 RSS Source: {rss_url} - {len(feed.entries)} articles found.")
+            rss_source = rss_country_map.get(rss_url, "Unknown")  
 
             for entry in feed.entries:
                 try:
@@ -66,17 +67,17 @@ def get_google_alerts(time_range=1):
                     published_date = published_dt.strftime("%Y-%m-%d")
                     published_time = published_dt.strftime("%H:%M:%S")
 
-                    # סינון לפי טווח תאריכים
+                   # Filter by date range
                     if start_date <= published_date_obj <= today:
                         if not title or not clean_url:
-                            print(f"⚠️ כתבה לא תקינה (כותרת/URL חסרים) - מדלג.")
+                            print(f"⚠️ Invalid article (missing title or URL) – skipping.")
                             invalid_count += 1
                             continue
 
-                        # בדיקת אורך התקציר
+                        # Check summary length
                         word_count = len(summary.split())
                         if word_count < 10:
-                            print(f"⚠️ תקציר קצר מדי ({word_count} מילים) - מדלג.")
+                            print(f"⚠️ Summary too short ({word_count} words) – skipping.")
                             invalid_count += 1
                             continue
 
@@ -94,17 +95,16 @@ def get_google_alerts(time_range=1):
                             "summary": summary,
                             "source": source,
                             "keywords": keywords,
-                            "rss_source": rss_source  # הוספת המדינה
+                            "rss_source": rss_source  
                         })
-                        print(f"✅ נוספה כתבה: {title}")
+                        print(f"✅Article added: {title}")
 
                 except Exception as e:
-                    print(f"⚠️ שגיאה בעיבוד כתבה מ-RSS ({rss_url}): {e}")
+                    print(f"⚠️ Error processing article from RSS ({rss_url}): {e}")
 
         except requests.RequestException as e:
-            print(f"❌ שגיאה בשליפת RSS מ-{rss_url}: {e}")
-
-    print(f"📡 נמצאו {len(articles)} כתבות חדשות מכל ה-RSS (נדחו: {invalid_count}).")
+            print(f"❌Failed to fetch RSS from -{rss_url}: {e}")
+    print(f"📡 Total new articles retrieved from all RSS feeds: {len(articles)} (Skipped: {invalid_count})")
     return articles
 
 
@@ -113,64 +113,65 @@ def get_google_alerts(time_range=1):
 #2
 def fetch_full_text(url, max_words=600):
     """
-    שליפת טקסט מלא מכתבה
-    :param url: כתובת URL של המאמר
-    :param max_words: מספר המילים המקסימלי לשליפה (ברירת מחדל: 600)
-    :return: טקסט המאמר או הודעת שגיאה
+    Retrieves the full text from a given article URL.
+    
+    :param url: The article's URL
+    :param max_words: Maximum number of words to return (default: 600)
+    :return: The article's text or an error message
     """
     try:
-        print(f"🌐 מנסה לשלוף כתבה מ-URL: {url}")
-        # הגדרת מאמר עם User-Agent מותאם
+        print(f"🌐 Attempting to fetch article from URL: {url}")
+        # Create the Article object with a custom User-Agent
         article = Article(url, language='en')
         article.download()
-        print(f"⬇️ הורדת המאמר הצליחה: {url}")
+        print(f"⬇️ Article download successful: {url}")
         article.parse()
-        print(f"📝 ניתוח המאמר הצליח: {url}")
+        print(f"📝 Article parsing successful: {url}")
 
         text = article.text.strip()
         word_count = len(text.split())
-        print(f"📄 נשלפו {word_count} מילים מהכתבה: {url}")
+        print(f"📄 Extracted {word_count} words from article: {url}")
 
-        # בדיקה אם הכתבה קצרה מדי
+        # Check if the article is too short
         if word_count < 10:
-            print(f"⚠️ טקסט קצר מדי (פחות מ-10 מילים) - דילוג על כתבה: {url}")
-            return "⚠️ טקסט קצר מדי (פחות מ-10 מילים)"
+            print(f"⚠️ Article text too short (<10 words) – skipping: {url}")
+            return "⚠️ Article text too short (<10 words)"
 
-        # חיתוך הטקסט במידה וארוך מדי
+        # Trim the article if it's too long
         if word_count > max_words:
             text = " ".join(text.split()[:max_words])
-            print(f"✂️ חותך את הטקסט ל-{max_words} מילים: {url}")
+            print(f"✂️ Trimming article to {max_words} words: {url}")
 
-        print(f"✅ טקסט שלם נשלף בהצלחה: {url}")
+        print(f"✅ Full article text successfully extracted: {url}")
         return text
 
     except ArticleException as ae:
-        print(f"⚠️ שגיאה בעיבוד מאמר (ArticleException) מ-{url}: {ae}")
-        return "⚠️ שגיאת עיבוד מאמר"
+        print(f"⚠️ ArticleException while processing article from {url}: {ae}")
+        return "⚠️ Article processing error"
 
     except ConnectionError as ce:
-        print(f"⚠️ שגיאת חיבור לכתבה מ-{url}: {ce}")
-        return "⚠️ שגיאת חיבור לאתר"
+        print(f"⚠️ Connection error while accessing article from {url}: {ce}")
+        return "⚠️ Connection error"
 
     except Exception as e:
-        print(f"⚠️ שגיאה כללית בשליפת כתבה מ-{url}: {e}")
-        return "⚠️ שגיאה כללית בשליפת כתבה"
+        print(f"⚠️ General error while retrieving article from {url}: {e}")
+        return "⚠️ General article retrieval error"
 
 
 #3
 def filter_new_articles(articles):
     try:
         posted_news = load_posted_news()
-        print(f"✅ נתוני כתבות שכבר נשלחו נטענו בהצלחה. ({len(posted_news)} פריטים)")
+        print(f"✅ Successfully loaded previously sent articles. ({len(posted_news)} items)")
     except Exception as e:
-        print(f"⚠️ שגיאה בטעינת כתבות שנשלחו: {e}")
+        print(f"⚠️ Error loading sent articles: {e}")
         posted_news = []
 
     try:
         skipped_news = load_skipped_news()
-        print(f"✅ נתוני כתבות שנכשלו נטענו בהצלחה. ({len(skipped_news)} פריטים)")
+        print(f"✅ Successfully loaded previously skipped articles. ({len(skipped_news)} items)")
     except Exception as e:
-        print(f"⚠️ שגיאה בטעינת כתבות שנכשלו: {e}")
+        print(f"⚠️ Error loading skipped articles: {e}")
         skipped_news = {}
 
     processed_titles = set()
@@ -196,29 +197,29 @@ def filter_new_articles(articles):
         content = article.get("summary", "")
         content_word_count = len(content.split())
 
-        print(f"[DEBUG] בודק כתבה: title='{title}' | url='{url}' | מילים בתקציר={content_word_count}")
+        print(f"[DEBUG] Checking article: title='{title}' | url='{url}' | summary word count={content_word_count}")
 
         if not title or not url:
-            print(f"⚠️ כתבה ללא כותרת או כתובת: {article}")
+            print(f"⚠️ Article missing title or URL: {article}")
             continue
 
         if title in processed_titles:
             duplicate_count += 1
-            print(f"[🔁 DUPLICATE_TITLE] '{title}' נמצא כבר – דילוג.")
+            print(f"[🔁 DUPLICATE_TITLE] '{title}' already processed – skipping.")
             continue
 
         if url in processed_urls:
             duplicate_count += 1
-            print(f"[🔁 DUPLICATE_URL] '{url}' נמצא כבר – דילוג.")
+            print(f"[🔁 DUPLICATE_URL] '{url}' already processed – skipping.")
             continue
 
-        # חישוב hash תמיד, אם יש תקציר כלשהו
+        # Always compute hash if there is content
         text_hash = compute_text_hash(content) if content.strip() else None
         if text_hash:
-            print(f"[HASH] חושב hash: {text_hash}")
+            print(f"[HASH] Computed hash: {text_hash}")
             if text_hash in processed_hashes:
                 duplicate_count += 1
-                print(f"[🔁 DUPLICATE_HASH] hash='{text_hash}' כבר קיים – דילוג.")
+                print(f"[🔁 DUPLICATE_HASH] hash='{text_hash}'already exists – skipping.")
                 continue
 
         article["text_hash"] = text_hash
@@ -228,6 +229,6 @@ def filter_new_articles(articles):
         if text_hash:
             processed_hashes.add(text_hash)
 
-    print(f"🧐 מסנן {duplicate_count} כתבות כפולות או שכבר נכשלו בעבר.")
-    print(f"✅ נמצאו {len(new_articles)} כתבות חדשות לשליחה.")
+    print(f"🧐 Filtered out {duplicate_count} duplicate or previously failed articles.")
+    print(f"✅ Found {len(new_articles)} new articles to send.")
     return new_articles
