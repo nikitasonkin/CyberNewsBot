@@ -15,7 +15,7 @@ from bs4 import BeautifulSoup
 from transformers import pipeline
 from newspaper import Article, ArticleException
 import torch
-import psutil  # תוסיף לייבוא אם עדיין אין
+import psutil
 from nltk.tokenize import word_tokenize
 import hashlib
 import requests
@@ -31,16 +31,17 @@ from news_retrieval import fetch_full_text
 
 #1
 def send_telegram_message(message, retries=3, delay=5):
-    print(f"➡️ שולח טלגרם עם הטקסט: {message[:40]}...")
+    print(f"➡️ Sending Telegram message: {message[:40]}...")
     print(f"[BOT] {TELEGRAM_BOT_TOKEN[:10]}... | [CHAT_ID] {TELEGRAM_CHAT_ID}")
+    
+    """Sends a message to Telegram, handles HTTP 429 errors with retries and delay"""
 
-    """ שולח הודעה לטלגרם עם טיפול רק בשגיאת 429 והשהיה במקרה הצורך """
 
     clean_message = message.strip()
     clean_message_text = BeautifulSoup(clean_message, "html.parser").get_text().strip()
 
     if not clean_message_text:
-        print(" ההודעה ריקה לאחר ניקוי, מדלג על שליחה לטלגרם.")
+        print("⚠️ Message is empty after cleaning. Skipping Telegram send.")
         return
 
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
@@ -50,29 +51,29 @@ def send_telegram_message(message, retries=3, delay=5):
         try:
             response = requests.post(url, json=payload)
             response.raise_for_status()
-            print(f"הודעה נשלחה בהצלחה.")
-            return  # יציאה מהפונקציה לאחר הצלחה
+            print("✅ Message sent successfully.")
+            return  # Exit after successful send
 
         except requests.exceptions.HTTPError as e:
             if response.status_code == 429:
                 retry_after = int(response.headers.get("Retry-After", delay))
-                print(f"⏳ קיבלנו שגיאת 429 - מחכים {retry_after} שניות...")
-                time.sleep(retry_after)  # השהיה לפי זמן שנשלח בהודעה
+                print(f"⏳ Received 429 Too Many Requests – retrying in {retry_after} seconds...")
+                time.sleep(retry_after)
             else:
-                print(f" שגיאה בשליחת הודעה: {e} - סטטוס: {response.status_code}")
-                break  # במקרה של שגיאה שאינה 429, לא ננסה שוב
+                print(f"❌ Error sending message: {e} – Status code: {response.status_code}")
+                break  # Do not retry on other HTTP errors
 
         except requests.exceptions.RequestException as e:
-            print(f" שגיאת תקשורת בטלגרם: {e}")
-            break  # במקרה של בעיות חיבור כלליות לא ננסה שוב
+            print(f"❌ Telegram communication error: {e}")
+            break  # Do not retry on general connection issues
 
-    print(" לא הצלחנו לשלוח את ההודעה לאחר מספר ניסיונות.")
+    print("⚠️ Failed to send the message after multiple attempts.")
 
 
 #2
 def post_articles_to_telegram(articles):
     start_time = datetime.now()
-    print(f"\n🚀 התחלת שליחת כתבות: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"\n🚀 Starting to send articles: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
 
     sent_articles = []
     skipped_articles = []
@@ -89,7 +90,7 @@ def post_articles_to_telegram(articles):
 
     for index, article in enumerate(articles):
         article_id = article["id"]
-        original_title = clean_title(article["title"]) or "🔹 כתבה ללא כותרת"
+        original_title = clean_title(article["title"]) or "🔹 Untitled Article"
         match_title = clean_title_for_matching(article["title"])
         clean_link = clean_url(article["url"])
         summary = article.get("summary", "")
@@ -104,7 +105,7 @@ def post_articles_to_telegram(articles):
                 "id": article_id,
                 "title": original_title,
                 "url": clean_link,
-                "reason": "כפילות לפי כותרת או URL",
+                "reason": "Duplicate by title or URL",
                 "summary": summary,
                 "text_hash": article.get("text_hash", ""),
                 "source": article.get("source", extract_source_from_url(clean_link)),
@@ -117,19 +118,19 @@ def post_articles_to_telegram(articles):
         if article_id in skipped_news:
             fail_count = skipped_news[article_id].get("fail_count", 0)
             if fail_count >= 3:
-                print(f"❌ הכתבה '{original_title}' נכשלת יותר מדי פעמים ({fail_count}) – מדלג עליה.")
+                print(f"❌ The article '{original_title}' has failed too many times ({fail_count}) – skipping it.")
                 continue
 
         text_hash = article.get("text_hash")
         if not text_hash and summary.strip():
             text_hash = compute_text_hash(summary)
             article["text_hash"] = text_hash
-            print(f"[HASH] חושב מחדש hash מהתקציר: {text_hash}")
+            print(f"[HASH] Recomputing hash from summary: {text_hash}")
 
         try:
             full_text = fetch_full_text(clean_link)
         except Exception as e:
-            reason = f"שגיאה בשליפת כתבה: {str(e)}"
+            reason = f"Error while fetching article: {str(e)}"
             print(f"❌ {reason}")
             skipped_articles.append({
                 "id": article_id,
@@ -146,8 +147,8 @@ def post_articles_to_telegram(articles):
             continue
 
         if not full_text or len(full_text.split()) < 10:
-            reason = "טקסט מהכתבה קצר מדי או ריק"
-            print(f"🚫 {reason} – דילוג.")
+            reason = "Article text is empty or too short"
+            print(f"🚫 {reason} – skipping.")
             skipped_articles.append({
                 "id": article_id,
                 "title": original_title,
@@ -163,8 +164,8 @@ def post_articles_to_telegram(articles):
             continue
 
         if text_hash and (text_hash in posted_hashes or text_hash in processed_hashes):
-            reason = "כפילות לפי hash של התקציר"
-            print(f"[DUPLICATE_HASH] {reason} – דילוג.")
+            reason = "Duplicate based on summary hash"
+            print(f"[DUPLICATE_HASH] {reason} – skipping.")
             skipped_articles.append({
                 "id": article_id,
                 "title": original_title,
@@ -184,12 +185,12 @@ def post_articles_to_telegram(articles):
         if text_hash:
             processed_hashes.add(text_hash)
 
-        print(f"\n📨 כתבה {index + 1}/{len(articles)}: {original_title}")
+        print(f"\n📨 Article {index + 1}/{len(articles)}: {original_title}")
 
         try:
             summarized_content = summarize_text(full_text, title=original_title)
         except Exception as e:
-            reason = f"שגיאה בסיכום: {str(e)}"
+            reason = f"Error during summarization: {str(e)}"
             print(f"⚠️ {reason}")
             skipped_articles.append({
                 "id": article_id,
@@ -206,8 +207,8 @@ def post_articles_to_telegram(articles):
             continue
 
         if not summarized_content.strip() or len(summarized_content.split()) < 20:
-            reason = "התקציר הסופי קצר מדי או ריק"
-            print(f"🚫 {reason} – מסמן ככשלון.")
+            reason = "Final summary is too short or empty"
+            print(f"🚫 {reason} – marking as failed.")
             skipped_articles.append({
                 "id": article_id,
                 "title": original_title,
@@ -260,10 +261,10 @@ def post_articles_to_telegram(articles):
                 current_posted.append(enriched)
                 save_posted_news(current_posted)
 
-                print(f"✅ נשלחה ונשמרה: {original_title}")
+                print(f"✅ Sent and saved: {original_title}")
                 break
             except requests.exceptions.RequestException as e:
-                reason = f"שגיאה בשליחה לטלגרם או Teams: {str(e)}"
+                reason = f"Error sending to Telegram or Teams: {str(e)}"
                 print(f"❌ {reason}")
                 skipped_articles.append({
                     "id": article_id,
@@ -282,21 +283,19 @@ def post_articles_to_telegram(articles):
     if skipped_articles:
         save_skipped_news(skipped_articles)
 
-    print("\n📋 סיום שליחת כתבות:")
-    print(f"✅ נשלחו בהצלחה: {len(sent_articles)}")
-    print(f"⚠️ דולגו או נכשלו: {len(skipped_articles)}")
-    print(f"📊 סה״כ כתבות בטיפול: {len(articles)}")
-    print(f"⏱️ משך זמן: {datetime.now() - start_time}")
+    print("\n📋 Finished sending articles:")
+    print(f"✅ Successfully sent: {len(sent_articles)}")
+    print(f"⚠️ Skipped or failed: {len(skipped_articles)}")
+    print(f"📊 Total summaries is processed: {len(articles)}")
+    print(f"⏱️ Duration: {datetime.now() - start_time}")
 
 
 
 #3
 def send_to_teams(message, webhook_url, retries=3, delay=5):
-    """ שולח הודעה ל-Microsoft Teams עם טיפול רק בשגיאת 429 """
+     """Sends a message to Microsoft Teams, with retry handling for HTTP 429 errors only."""
     try:
         headers = {"Content-Type": "application/json"}
-
-        # יצירת כרטיס אדפטיבי במבנה נכון עם כפתור
         adaptive_card = {
             "type": "message",
             "attachments": [
@@ -323,7 +322,7 @@ def send_to_teams(message, webhook_url, retries=3, delay=5):
                             },
                             {
                                 "type": "TextBlock",
-                                "text": f"📅 תאריך: {message['date']}",
+                                "text": f"📅 Date: {message['date']}",
                                 "wrap": True
                             },
                             {
@@ -337,7 +336,7 @@ def send_to_teams(message, webhook_url, retries=3, delay=5):
                                 "actions": [
                                     {
                                         "type": "Action.OpenUrl",
-                                        "title": "🔗 קריאה נוספת",
+                                        "title": "🔗 Further reading",
                                         "url": message['url']
                                     }
                                 ]
@@ -352,20 +351,20 @@ def send_to_teams(message, webhook_url, retries=3, delay=5):
             try:
                 response = requests.post(webhook_url, headers=headers, json=adaptive_card)
                 response.raise_for_status()
-                print(f"✅ הודעה נשלחה בהצלחה לערוץ Teams!")
+                print(f"✅ Message successfully sent to Teams!")
                 return
             except requests.exceptions.HTTPError as e:
                 if response.status_code == 429:
                     retry_after = int(response.headers.get("Retry-After", delay))
-                    print(f"⏳ קיבלנו שגיאת 429 - מחכים {retry_after} שניות...")
+                    print(f"⏳ Received HTTP 429 – retrying in {retry_after} seconds...")
                     time.sleep(retry_after)
                 else:
-                    print(f"❌ שגיאה בשליחת הודעה ל-Teams: {e} - סטטוס: {response.status_code}")
+                    print(f"❌ Failed to send message to Teams: {e} - סטטוס: {response.status_code}")
                     break
             except requests.exceptions.RequestException as e:
-                print(f"⚠️ שגיאת תקשורת בערוץ Teams: {e}")
+                print(f"⚠️ Communication error with Teams: {e}")
                 break
 
-        print("❌ לא הצלחנו לשלוח את ההודעה ל-Teams לאחר מספר ניסיונות.")
+        print("❌ Failed to send message to Teams after multiple attempts.")
     except Exception as e:
-        print(f"⚠️ שגיאה כללית בשליחה ל-Teams: {e}")
+        print(f"⚠️ General error while sending to Teams: {e} {e}")
