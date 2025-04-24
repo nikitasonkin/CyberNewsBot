@@ -80,8 +80,8 @@ def post_articles_to_telegram(articles):
     skipped_news = load_skipped_news()
     current_posted = load_posted_news()
 
-    posted_titles = set(item["title"] for item in current_posted)
-    posted_urls = set(item["url"] for item in current_posted)
+    posted_titles = set(clean_title_for_matching(item["title"]) for item in current_posted)
+    posted_urls = set(clean_url(item["url"]) for item in current_posted)
     posted_hashes = set(item.get("text_hash") for item in current_posted if "text_hash" in item)
 
     processed_titles = set()
@@ -95,19 +95,54 @@ def post_articles_to_telegram(articles):
         clean_link = clean_url(article["url"])
         summary = article.get("summary", "")
         rss_source = article.get("rss_source", "Unknown")
+        text_hash = article.get("text_hash")
 
         print(f"[CHECK] Title: {original_title} | URL: {clean_link}")
 
-        if match_title in posted_titles or clean_link in posted_urls or \
-           match_title in processed_titles or clean_link in processed_urls:
-            print(f"[DUPLICATE] Skipping by title or URL.")
+        # בדיקת כפילות לפי hash של תקציר
+        if text_hash and (text_hash in posted_hashes or text_hash in processed_hashes):
+            print(f"[DUPLICATE_HASH] Skipping by summary hash.")
             skipped_articles.append({
                 "id": article_id,
                 "title": original_title,
                 "url": clean_link,
-                "reason": "Duplicate by title or URL",
+                "reason": "Duplicate by summary hash",
                 "summary": summary,
-                "text_hash": article.get("text_hash", ""),
+                "text_hash": text_hash,
+                "source": article.get("source", extract_source_from_url(clean_link)),
+                "published_date": article.get("published_date", datetime.today().strftime("%Y-%m-%d")),
+                "published_time": article.get("published_time", datetime.today().strftime("%H:%M:%S")),
+                "rss_source": rss_source
+            })
+            continue
+
+        # בדיקת כפילות לפי כותרת
+        if match_title in posted_titles or match_title in processed_titles:
+            print(f"[DUPLICATE_TITLE] Skipping by title.")
+            skipped_articles.append({
+                "id": article_id,
+                "title": original_title,
+                "url": clean_link,
+                "reason": "Duplicate by title",
+                "summary": summary,
+                "text_hash": text_hash or "",
+                "source": article.get("source", extract_source_from_url(clean_link)),
+                "published_date": article.get("published_date", datetime.today().strftime("%Y-%m-%d")),
+                "published_time": article.get("published_time", datetime.today().strftime("%H:%M:%S")),
+                "rss_source": rss_source
+            })
+            continue
+
+        # בדיקת כפילות לפי URL
+        if clean_link in posted_urls or clean_link in processed_urls:
+            print(f"[DUPLICATE_URL] Skipping by url.")
+            skipped_articles.append({
+                "id": article_id,
+                "title": original_title,
+                "url": clean_link,
+                "reason": "Duplicate by url",
+                "summary": summary,
+                "text_hash": text_hash or "",
                 "source": article.get("source", extract_source_from_url(clean_link)),
                 "published_date": article.get("published_date", datetime.today().strftime("%Y-%m-%d")),
                 "published_time": article.get("published_time", datetime.today().strftime("%H:%M:%S")),
@@ -121,7 +156,6 @@ def post_articles_to_telegram(articles):
                 print(f"❌ The article '{original_title}' has failed too many times ({fail_count}) – skipping it.")
                 continue
 
-        text_hash = article.get("text_hash")
         if not text_hash and summary.strip():
             text_hash = compute_text_hash(summary)
             article["text_hash"] = text_hash
@@ -148,24 +182,7 @@ def post_articles_to_telegram(articles):
 
         if not full_text or len(full_text.split()) < 10:
             reason = "Article text is empty or too short"
-            print(f"🚫 {reason} – skipping.")
-            skipped_articles.append({
-                "id": article_id,
-                "title": original_title,
-                "url": clean_link,
-                "reason": reason,
-                "summary": summary,
-                "text_hash": text_hash or "",
-                "source": article.get("source", extract_source_from_url(clean_link)),
-                "published_date": article.get("published_date", datetime.today().strftime("%Y-%m-%d")),
-                "published_time": article.get("published_time", datetime.today().strftime("%H:%M:%S")),
-                "rss_source": rss_source
-            })
-            continue
-
-        if text_hash and (text_hash in posted_hashes or text_hash in processed_hashes):
-            reason = "Duplicate based on summary hash"
-            print(f"[DUPLICATE_HASH] {reason} – skipping.")
+            print(f"🚫 {reason} – skipped.")
             skipped_articles.append({
                 "id": article_id,
                 "title": original_title,
@@ -286,7 +303,7 @@ def post_articles_to_telegram(articles):
     print("\n📋 Finished sending articles:")
     print(f"✅ Successfully sent: {len(sent_articles)}")
     print(f"⚠️ Skipped or failed: {len(skipped_articles)}")
-    print(f"📊 Total summaries is processed: {len(articles)}")
+    print(f"📊 Total summaries processed: {len(articles)}")
     print(f"⏱️ Duration: {datetime.now() - start_time}")
 
 
