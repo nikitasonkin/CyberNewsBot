@@ -174,22 +174,7 @@ def filter_new_articles(articles):
         print(f"⚠️ Error loading skipped articles: {e}")
         skipped_news = {}
 
-    processed_titles = set()
-    processed_urls = set()
-    processed_hashes = set()
-
-    for item in posted_news:
-        processed_titles.add(clean_title_for_matching(item.get("title", "")))
-        processed_urls.add(clean_url(item.get("url", "")))
-        processed_hashes.add(item.get("text_hash", ""))
-
-    for item in skipped_news.values():
-        processed_titles.add(clean_title_for_matching(item.get("title", "")))
-        processed_urls.add(clean_url(item.get("url", "")))
-        processed_hashes.add(item.get("text_hash", ""))
-
     new_articles = []
-    duplicate_count = 0
 
     for article in articles:
         title = clean_title_for_matching(article.get("title", ""))
@@ -203,32 +188,11 @@ def filter_new_articles(articles):
             print(f"⚠️ Article missing title or URL: {article}")
             continue
 
-        if title in processed_titles:
-            duplicate_count += 1
-            print(f"[🔁 DUPLICATE_TITLE] '{title}' already processed – skipping.")
-            continue
-
-        if url in processed_urls:
-            duplicate_count += 1
-            print(f"[🔁 DUPLICATE_URL] '{url}' already processed – skipping.")
-            continue
-
-        # Always compute hash if there is content
+        # תמיד מחשבים hash (אם יש תוכן)
         text_hash = compute_text_hash(content) if content.strip() else None
-        if text_hash:
-            print(f"[HASH] Computed hash: {text_hash}")
-            if text_hash in processed_hashes:
-                duplicate_count += 1
-                print(f"[🔁 DUPLICATE_HASH] hash='{text_hash}'already exists – skipping.")
-                continue
-
         article["text_hash"] = text_hash
-        new_articles.append(article)
-        processed_titles.add(title)
-        processed_urls.add(url)
-        if text_hash:
-            processed_hashes.add(text_hash)
 
-    print(f"🧐 Filtered out {duplicate_count} duplicate or previously failed articles.")
-    print(f"✅ Found {len(new_articles)} new articles to send.")
+        new_articles.append(article)
+
+    print(f"✅ Found {len(new_articles)} articles to process (duplicates will be filtered later).")
     return new_articles
