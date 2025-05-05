@@ -30,8 +30,9 @@ from json_handler import load_posted_news, load_skipped_news
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------
 #1
+
 def get_google_alerts(time_range=1):
-    """
+     """
     Retrieves articles from predefined RSS feeds.
     
     :param time_range: Number of days back to fetch news (default: 1 – today's news)
@@ -49,12 +50,11 @@ def get_google_alerts(time_range=1):
             feed = feedparser.parse(response.text)
 
             if not feed.entries:
-                print(f"⚠️ No articles found in RSS: {rss_url}")
+                print(f"⚠️No articles found in RSS: {rss_url}")
                 continue
 
             print(f"📡 RSS Source: {rss_url} - {len(feed.entries)} articles found.")
-            rss_source = rss_country_map.get(rss_url, "Unknown")  
-
+            rss_source = rss_country_map.get(rss_url, "Unknown") 
             for entry in feed.entries:
                 try:
                     article_id = entry.id if hasattr(entry, "id") else str(datetime.now().timestamp())
@@ -67,14 +67,14 @@ def get_google_alerts(time_range=1):
                     published_date = published_dt.strftime("%Y-%m-%d")
                     published_time = published_dt.strftime("%H:%M:%S")
 
-                   # Filter by date range
+                
                     if start_date <= published_date_obj <= today:
                         if not title or not clean_url:
                             print(f"⚠️ Invalid article (missing title or URL) – skipping.")
                             invalid_count += 1
                             continue
 
-                        # Check summary length
+                  
                         word_count = len(summary.split())
                         if word_count < 10:
                             print(f"⚠️ Summary too short ({word_count} words) – skipping.")
@@ -95,15 +95,17 @@ def get_google_alerts(time_range=1):
                             "summary": summary,
                             "source": source,
                             "keywords": keywords,
-                            "rss_source": rss_source  
+                            "rss_source": rss_source 
                         })
-                        print(f"✅Article added: {title}")
+                        print(f"✅ Article added: {title}")
 
                 except Exception as e:
                     print(f"⚠️ Error processing article from RSS ({rss_url}): {e}")
 
+
         except requests.RequestException as e:
-            print(f"❌Failed to fetch RSS from -{rss_url}: {e}")
+            print(f"❌ Failed to fetch RSS from - {rss_url}: {e}")
+
     print(f"📡 Total new articles retrieved from all RSS feeds: {len(articles)} (Skipped: {invalid_count})")
     return articles
 
@@ -112,13 +114,6 @@ def get_google_alerts(time_range=1):
 
 #2
 def fetch_full_text(url, max_words=600):
-    """
-    Retrieves the full text from a given article URL.
-    
-    :param url: The article's URL
-    :param max_words: Maximum number of words to return (default: 600)
-    :return: The article's text or an error message
-    """
     try:
         print(f"🌐 Attempting to fetch article from URL: {url}")
         # Create the Article object with a custom User-Agent
@@ -159,7 +154,7 @@ def fetch_full_text(url, max_words=600):
 
 
 #3
-def filter_new_articles(articles):
+ef filter_new_articles(articles):
     try:
         posted_news = load_posted_news()
         print(f"✅ Successfully loaded previously sent articles. ({len(posted_news)} items)")
