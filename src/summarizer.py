@@ -11,7 +11,6 @@ import urllib.parse
 from datetime import datetime, timedelta
 import os
 import sys
-from datetime import datetime
 import nltk
 # 🌐 Third-party libraries
 import feedparser
@@ -26,7 +25,7 @@ import requests
 from urllib.parse import urlparse
 import html
 import time
-import urllib.parse
+
 
 
 
