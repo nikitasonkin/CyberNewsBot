@@ -33,9 +33,6 @@ from news_retrieval import fetch_full_text
 def send_telegram_message(message, retries=3, delay=5):
     print(f"➡️ Sending Telegram message: {message[:40]}...")
     print(f"[BOT] {TELEGRAM_BOT_TOKEN[:10]}... | [CHAT_ID] {TELEGRAM_CHAT_ID}")
-    
-    """Sends a message to Telegram, handles HTTP 429 errors with retries and delay"""
-
 
     clean_message = message.strip()
     clean_message_text = BeautifulSoup(clean_message, "html.parser").get_text().strip()
@@ -52,20 +49,20 @@ def send_telegram_message(message, retries=3, delay=5):
             response = requests.post(url, json=payload)
             response.raise_for_status()
             print("✅ Message sent successfully.")
-            return  # Exit after successful send
+            return  # Exit after successful sendציאה מהפונקציה לאחר הצלחה
 
         except requests.exceptions.HTTPError as e:
             if response.status_code == 429:
                 retry_after = int(response.headers.get("Retry-After", delay))
                 print(f"⏳ Received 429 Too Many Requests – retrying in {retry_after} seconds...")
-                time.sleep(retry_after)
+                time.sleep(retry_after)  
             else:
                 print(f"❌ Error sending message: {e} – Status code: {response.status_code}")
-                break  # Do not retry on other HTTP errors
+                break  
 
         except requests.exceptions.RequestException as e:
             print(f"❌ Telegram communication error: {e}")
-            break  # Do not retry on general connection issues
+            break  
 
     print("⚠️ Failed to send the message after multiple attempts.")
 
@@ -99,7 +96,7 @@ def post_articles_to_telegram(articles):
 
         print(f"[CHECK] Title: {original_title} | URL: {clean_link}")
 
-        # בדיקת כפילות לפי hash של תקציר
+
         if text_hash and (text_hash in posted_hashes or text_hash in processed_hashes):
             print(f"[DUPLICATE_HASH] Skipping by summary hash.")
             skipped_articles.append({
@@ -116,7 +113,6 @@ def post_articles_to_telegram(articles):
             })
             continue
 
-        # בדיקת כפילות לפי כותרת
         if match_title in posted_titles or match_title in processed_titles:
             print(f"[DUPLICATE_TITLE] Skipping by title.")
             skipped_articles.append({
