@@ -7,7 +7,6 @@ import urllib.parse
 from datetime import datetime, timedelta
 import os
 import sys
-from datetime import datetime
 import nltk
 # 🌐 Third-party libraries
 import feedparser
@@ -22,11 +21,10 @@ import requests
 from urllib.parse import urlparse
 import html
 import time
-import urllib.parse
 from messaging import send_telegram_message, post_articles_to_telegram
 from lock_manager import create_lock, remove_lock, is_script_running
 from news_retrieval import get_google_alerts,filter_new_articles
-from news_retrieval import filter_new_articles
+
 
 
 
