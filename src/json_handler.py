@@ -121,9 +121,9 @@ def save_skipped_news(skipped_articles):
         source = article.get("source", extract_source_from_url(url))
         published_date = article.get("published_date", today_date)
         published_time = article.get("published_time", current_time)
-        rss_source = article.get("rss_source", "Unknown") # Call the country field if it exists
+        rss_source = article.get("rss_source", "Unknown")  # Call the country field if it exists
 
-        # Calculate hash if missing
+         # Calculate hash if missing
         text_hash = article.get("text_hash") or compute_text_hash(summary)
 
         if article_id in existing_skipped:
@@ -156,3 +156,5 @@ def save_skipped_news(skipped_articles):
         json.dump(existing_skipped, f, ensure_ascii=False, indent=4)
 
     print(f"[INFO] Skipped list updated: {len(skipped_articles)} new, {len(existing_skipped)} total.")
+    
+
