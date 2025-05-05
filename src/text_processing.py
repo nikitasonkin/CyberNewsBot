@@ -24,7 +24,8 @@ from urllib.parse import urlparse
 import html
 import time
 import urllib.parse
-
+from urllib.parse import urlparse
+from collections import Counter
 
 
 #1
@@ -105,7 +106,6 @@ def compute_text_hash(text):
     cleaned = clean_text(text).strip().lower()
     return hashlib.sha256(cleaned.encode("utf-8")).hexdigest()
 
-from urllib.parse import urlparse
 
 def extract_source_from_url(url):
     try:
@@ -113,8 +113,6 @@ def extract_source_from_url(url):
     except:
         return ""
 
-from nltk.tokenize import word_tokenize
-from collections import Counter
 
 def extract_keywords(text, num_keywords=5):
     try:
