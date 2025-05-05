@@ -10,7 +10,6 @@ import urllib.parse
 from datetime import datetime, timedelta
 import os
 import sys
-from datetime import datetime
 import nltk
 # 🌐 Third-party libraries
 import feedparser
@@ -25,7 +24,6 @@ import requests
 from urllib.parse import urlparse
 import html
 import time
-import urllib.parse
 from text_processing import compute_text_hash, extract_source_from_url
 from config import POSTED_NEWS_FILE
 
