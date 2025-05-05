@@ -7,7 +7,6 @@ import urllib.parse
 from datetime import datetime, timedelta
 import os
 import sys
-from datetime import datetime
 import nltk
 # 🌐 Third-party libraries
 import feedparser
@@ -22,7 +21,6 @@ import requests
 from urllib.parse import urlparse
 import html
 import time
-import urllib.parse
 from config import TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, TEAMS_WEBHOOK_URL
 from json_handler import load_skipped_news, load_posted_news, save_posted_news, save_skipped_news
 from text_processing import clean_title, clean_title_for_matching, clean_url, extract_source_from_url, compute_text_hash
