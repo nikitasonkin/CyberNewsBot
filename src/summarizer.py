@@ -54,7 +54,7 @@ def is_rss_summary_sufficient(text):
     - Not empty or too short.
     """
     word_count = len(text.split())
-    return word_count >= 20
+    return word_count >= 15
 
 
 summarizer_loaded = False # Global flag to check if the model is loaded
