@@ -128,6 +128,41 @@ The `json_handler.py` file is an essential component of the **CyberNewsBot** pro
 
 **Source**: [View the file on GitHub](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/json_handler.py)
 
+### Lock Manager File: `lock_manager.py`
+
+The `lock_manager.py` module provides essential functions for managing lock files to ensure that only one instance of a script runs at a time. This is particularly useful in scenarios where concurrent executions could cause conflicts or duplicate processing.
+
+---
+
+#### **Key Functions**
+
+- **`create_lock()`**
+  - **Purpose**: Creates a lock file with the current process ID (PID).
+  - **Why It Matters**: Prevents multiple instances of the script from running simultaneously.
+
+- **`remove_lock()`**
+  - **Purpose**: Deletes the lock file when the script finishes executing.
+  - **Use Case**: Ensures that future runs are not blocked by stale lock files.
+
+- **`is_script_running()`**
+  - **Purpose**: Checks whether the script is already running by reading the PID from the lock file.
+  - **Key Features**:
+    - Cleans up stale lock files if the process is no longer active.
+    - Helps maintain script execution integrity.
+
+- **`is_process_running(pid)`**
+  - **Purpose**: Verifies whether a process with the given PID is still running.
+  - **Integration**: Uses the `psutil` library for cross-platform process checks.
+
+---
+
+#### **Integration**
+- The module relies on a global constant `LOCK_FILE`, which is defined in the `config.py` module.
+- It integrates with `psutil` to handle process management efficiently and reliably.
+
+---
+
+**Source**: [View the file on GitHub](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/lock_manager.py)
 
 
 ### Project Structure
