@@ -68,6 +68,68 @@ This file relies on environment variables to fetch sensitive or configurable set
 
 **Source**: [View the file on GitHub](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/config.py)
 
+### JSON Handler File: `json_handler.py`
+
+The `json_handler.py` file is an essential component of the **CyberNewsBot** project, responsible for handling JSON data operations such as loading, saving, and processing. Below is a structured overview of its functionality:
+
+---
+
+#### **Safe JSON Loading**
+- **Function**: `safe_load_json(filepath, default)`
+- **Purpose**: Safely loads JSON data from a file.
+- **Key Features**:
+  - Returns a default value if the file is missing or contains invalid JSON.
+  - Ensures robustness when dealing with external data sources.
+
+---
+
+#### **Posted News Management**
+- **Function**: `load_posted_news()`
+  - **Purpose**: Loads previously posted news articles from `POSTED_NEWS_FILE`.
+  - **Error Handling**: Returns an empty list if the file is not found or contains invalid JSON.
+
+- **Function**: `save_posted_news(posted_news)`
+  - **Purpose**: Saves a list of posted news articles to `POSTED_NEWS_FILE`.
+  - **Key Features**:
+    - Writes to a temporary file for data integrity.
+    - Logs the number of saved articles.
+
+---
+
+#### **Skipped News Management**
+- **Function**: `load_skipped_news()`
+  - **Purpose**: Loads skipped news articles from `skipped_news_ud.json`.
+  - **Key Features**:
+    - Converts list-based JSON into a dictionary for efficient access.
+    - Filters out old or failed articles based on a 14-day cutoff.
+    - Removes articles with more than 3 failed attempts.
+
+- **Function**: `save_skipped_news(skipped_articles)`
+  - **Purpose**: Updates and saves the skipped news list.
+  - **Key Features**:
+    - Merges new and existing skipped articles.
+    - Tracks failure counts and updates metadata like `reason`, `summary`, and `text_hash`.
+    - Dynamically calculates missing `text_hash` values.
+    - Logs the number of new and total skipped articles.
+
+---
+
+#### **Error Handling and Validation**
+- Each function incorporates robust error handling to manage:
+  - Missing files
+  - Invalid JSON
+  - Unexpected data formats
+- Skipped articles are validated and enriched with metadata such as:
+  - Publication dates (`published_date`)
+  - Source information
+  - Reason for skipping
+
+---
+
+**Source**: [View the file on GitHub](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/json_handler.py)
+
+
+
 ### Project Structure
 - `main.py`: Entry point for the application.
 - `config.py`: Configuration and environment settings.
