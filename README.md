@@ -4,13 +4,13 @@
 The CYBER Project is a news aggregation and processing system designed to retrieve, process, summarize, and distribute news articles from various RSS feeds. The project includes functionalities for text cleaning, summarization, and sending updates to platforms like Telegram and Microsoft Teams.
 
 
-## Configuration File: `config.py`
+### Configuration File: `config.py`
 
 The `config.py` file is a crucial component of the **CyberNewsBot** project, responsible for managing configurations, environment settings, and logging. Below is a structured overview of its functionality:
 
 ---
 
-### **Logging System**
+#### **Logging System**
 - **Purpose**: Sets up logging for both console and file outputs.
 - **Key Features**:
   - Logs to a file (`app.log`) with rotation:
@@ -22,7 +22,7 @@ The `config.py` file is a crucial component of the **CyberNewsBot** project, res
 
 ---
 
-### **Environment Variables**
+#### **Environment Variables**
 This file relies on environment variables to fetch sensitive or configurable settings. These are loaded via the `dotenv` library.
 
 - **Critical Variables**:
@@ -37,13 +37,13 @@ This file relies on environment variables to fetch sensitive or configurable set
 
 ---
 
-### **File Constants**
+#### **File Constants**
 - `LOCK_FILE`: Used to prevent multiple script instances from running concurrently.
 - `POSTED_NEWS_FILE`: Tracks previously posted news in JSON format to avoid duplicates.
 
 ---
 
-### **RSS Feed Management**
+#### **RSS Feed Management**
 - Loads and cleans RSS feed URLs:
   - Strips whitespace and skips empty URLs.
   - Logs a sample of loaded feeds for verification.
@@ -53,7 +53,7 @@ This file relies on environment variables to fetch sensitive or configurable set
 
 ---
 
-### **Validation Function**
+#### **Validation Function**
 - **Purpose**: Ensures all required environment variables are set and valid.
 - **Implementation**:
   - Checks for missing variables and logs warnings.
@@ -61,13 +61,14 @@ This file relies on environment variables to fetch sensitive or configurable set
 
 ---
 
-### **Error Handling**
+#### **Error Handling**
 - Logs errors and warnings for missing or malformed environment variables, ensuring robustness.
 
 ---
 
 **Source**: [View the file on GitHub](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/config.py)
-## Project Structure
+
+### Project Structure
 - `main.py`: Entry point for the application.
 - `config.py`: Configuration and environment settings.
 - `news_retrieval.py`: Functions for retrieving and filtering news articles.
@@ -80,7 +81,7 @@ This file relies on environment variables to fetch sensitive or configurable set
 - `posted_news_ud.json`: Stores metadata of successfully posted news articles.
 - `skipped_news_ud.json`: Tracks articles that failed processing.
 
-## Setup
+### Setup
 1. Clone the repository.
 2. Install dependencies:
    ```bash
@@ -98,7 +99,7 @@ This file relies on environment variables to fetch sensitive or configurable set
    ```bash
    python main.py
 
-## Dependencies
+### Dependencies
 - `beautifulsoup4`
 - `feedparser`
 - `newspaper3k`
@@ -110,14 +111,14 @@ This file relies on environment variables to fetch sensitive or configurable set
 - `transformers`
 
 
-## Output Files
+### Output Files
 - ` posted_news_ud.json: All articles sent to Telegram/Teams `
 - `skipped_news_ud.json: Articles skipped with reason, timestamp, and fail count`
 - ` app.log: Debug logs and events`
 - ` run_times.txt: Each run’s timestamp`
 
-## License
+### License
 -`This project is licensed under the MIT License.`
 
-## Author
+### Author
 Created and maintained by Nikita Sonkin.
