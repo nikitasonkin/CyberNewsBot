@@ -3,16 +3,70 @@
 ## Overview
 The CYBER Project is a news aggregation and processing system designed to retrieve, process, summarize, and distribute news articles from various RSS feeds. The project includes functionalities for text cleaning, summarization, and sending updates to platforms like Telegram and Microsoft Teams.
 
-## Features
-`🔎 Retrieve cyber news from multiple country-specific RSS feeds`
-`🧼 Clean and normalize article text and metadata`
-`🧠 Summarize full articles using a pre-trained transformer model (BART)`
-`🔁 Eliminate duplicates using title, url, and text_hash`
-`📤 Send to Telegram and Teams with formatted message`
-`📂 Track skipped articles with reasons, dates, and fail counts`
-`🪵 Store logs for monitoring and debugging`
-`🔐 Use a lock file to avoid parallel runs`
 
+## Configuration File: `config.py`
+
+The `config.py` file is a crucial component of the **CyberNewsBot** project, responsible for managing configurations, environment settings, and logging. Below is a structured overview of its functionality:
+
+---
+
+### **Logging System**
+- **Purpose**: Sets up logging for both console and file outputs.
+- **Key Features**:
+  - Logs to a file (`app.log`) with rotation:
+    - Maximum file size: 10 MB.
+    - Keeps 5 backup files.
+  - Formats logs with: `timestamp - logger name - log level - message`.
+  - Logs both INFO and DEBUG levels.
+- **Why It Matters**: Ensures detailed and consistent logging for debugging and monitoring purposes.
+
+---
+
+### **Environment Variables**
+This file relies on environment variables to fetch sensitive or configurable settings. These are loaded via the `dotenv` library.
+
+- **Critical Variables**:
+  - `RSS_FEED_URL`: A comma-separated list of RSS feed URLs (mandatory).
+  - `RSS_COUNTRY_MAPPINGS`: Maps RSS feed URLs to countries (optional).
+  - `API_KEY`, `SEARCH_ENGINE_ID`: Keys for external integrations.
+  - `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`: Credentials for Telegram bot integration.
+  - `TEAMS_WEBHOOK_URL`: Webhook for Microsoft Teams notifications.
+- **Validation**:
+  - Ensures that all critical environment variables are present.
+  - Logs warnings for missing variables, ensuring issues are identified early.
+
+---
+
+### **File Constants**
+- `LOCK_FILE`: Used to prevent multiple script instances from running concurrently.
+- `POSTED_NEWS_FILE`: Tracks previously posted news in JSON format to avoid duplicates.
+
+---
+
+### **RSS Feed Management**
+- Loads and cleans RSS feed URLs:
+  - Strips whitespace and skips empty URLs.
+  - Logs a sample of loaded feeds for verification.
+- Handles URL-country mappings:
+  - Parses mappings in the format: `url1:country1,url2:country2`.
+  - Logs errors if mappings are malformed or missing.
+
+---
+
+### **Validation Function**
+- **Purpose**: Ensures all required environment variables are set and valid.
+- **Implementation**:
+  - Checks for missing variables and logs warnings.
+  - Returns a boolean indicating validation success.
+
+---
+
+### **Error Handling**
+- Logs errors and warnings for missing or malformed environment variables, ensuring robustness.
+
+---
+
+**Source**: [View the file on GitHub](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/config.py)
 ## Project Structure
 - `main.py`: Entry point for the application.
 - `config.py`: Configuration and environment settings.
