@@ -1,9 +1,18 @@
-beautifulsoup4==4.13.3
-feedparser==6.0.11
-newspaper3k==0.2.8
-nltk==3.9.1
-psutil==7.0.0
-python-dotenv==1.1.0
-requests==2.32.3
-torch==2.6.0
-transformers==4.49.0
+# requirements.txt
+#
+# Core NLP & ML libraries
+transformers>=4.41.0      # Hugging Face pipelines (BART summarizer)
+torch>=2.2.0              # Backend for transformers (GPU/CPU)
+
+# Tokenization support required by some Transformer models
+sentencepiece>=0.2.0      # Needed for BART and other SentencePiece-based tokenizers
+
+# Web & RSS parsing
+feedparser>=6.0.10        # Parse Google Alerts RSS feeds
+beautifulsoup4>=4.12.3    # HTML cleanup (titles, summaries)
+newspaper3k>=0.2.8        # Full-text article extraction
+
+# General utilities
+requests>=2.31.0          # HTTP calls (RSS, Telegram, Teams)
+psutil>=5.9.8             # Process management for lock-file logic
+nltk>=3.8.1               # Tokenization, keyword extraction
