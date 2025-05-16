@@ -3,6 +3,7 @@
 ## Overview
 CyberNewsBot is a news aggregation system that retrieves, processes, summarizes, and distributes cybersecurity-related articles from RSS feeds. It includes text cleaning, summarization, deduplication, and message delivery to platforms like Telegram and Microsoft Teams.
 
+---
 
 ### Configuration File: `config.py`
 
