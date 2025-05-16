@@ -68,7 +68,7 @@ This file relies on environment variables to fetch sensitive or configurable set
 
 ---
 
-### JSON Handler File: `json_handler.py`
+### JSON Handler File: [ `json_handler.py`](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/json_handler.py)
 
 The `json_handler.py` file is an essential component of the **CyberNewsBot** project, responsible for handling JSON data operations such as loading, saving, and processing. Below is a structured overview of its functionality:
 
@@ -126,9 +126,8 @@ The `json_handler.py` file is an essential component of the **CyberNewsBot** pro
 
 ---
 
-**Source**: [View the file on GitHub](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/json_handler.py)
+### Lock Manager File: [`lock_manager.py`](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/lock_manager.py)
 
-### Lock Manager File: `lock_manager.py`
 
 The `lock_manager.py` module provides essential functions for managing lock files to ensure that only one instance of a script runs at a time. This is particularly useful in scenarios where concurrent executions could cause conflicts or duplicate processing.
 
@@ -162,7 +161,61 @@ The `lock_manager.py` module provides essential functions for managing lock file
 
 ---
 
-**Source**: [View the file on GitHub](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/lock_manager.py)
+### Main Script File: [`main.py`](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/main.py)
+
+
+The `src/main.py` file serves as the main entry point for the **CyberNewsBot** application — a news aggregation, processing, and distribution tool. It orchestrates the overall execution flow, including news retrieval, filtering, messaging, and resource management.
+
+---
+
+#### **Purpose**
+- Coordinates the retrieval, filtering, and distribution of news articles.
+- Manages logging, NLP resource setup, and script concurrency.
+
+---
+
+#### **Key Function: `process_and_send_articles()`**
+- **Retrieves** news articles from Google Alerts.
+- **Filters** out previously processed or duplicate articles.
+- **Sends** new articles to a Telegram channel.
+
+---
+
+#### **Main Execution Flow**
+- Verifies and downloads required NLP resources (e.g., `nltk.punkt`).
+- Logs the script start time in `run_times.txt` and `log.txt`.
+- Sends a "script started" message to Telegram.
+- Prevents duplicate execution by checking for existing lock files.
+- Creates a lock file to manage execution state.
+- Calls `process_and_send_articles()` to run the main logic.
+- Handles all exceptions and sends error notifications to Telegram.
+- Removes the lock file as part of cleanup, ensuring future runs are not blocked.
+
+---
+
+#### **External Dependencies**
+- **News Retrieval**: `feedparser`, `newspaper3k`
+- **NLP Processing**: `nltk`, `transformers`
+- **Web Scraping**: `BeautifulSoup`
+- **System Monitoring**: `psutil`
+- **Messaging**: Internal modules like `messaging.py`, `news_retrieval.py` for Telegram integration
+
+---
+
+#### **Files and Logs**
+- **Lock File**: `script_running.lock` – Tracks whether the script is already running.
+- **Log Files**:
+  - `run_times.txt`: Records each execution timestamp.
+  - `log.txt`: Captures detailed script logs and debugging info.
+
+---
+
+#### **Additional Notes**
+- Implements robust error handling and logging.
+- Uses lock mechanisms to ensure safe single-instance execution.
+- Designed for stable, autonomous operation as part of an automated news delivery pipeline.
+
+---
 
 ### Main Script File: `main.py`
 
@@ -219,66 +272,8 @@ The `src/main.py` file serves as the main entry point for the **CyberNewsBot** a
 
 ---
 
-**Source**: [View the file on GitHub](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/main.py)
+### Messaging Module: [`messaging.py`](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/messaging.py)
 
-### Main Script File: `main.py`
-
-The `src/main.py` file serves as the main entry point for the **CyberNewsBot** application — a news aggregation, processing, and distribution tool. It orchestrates the overall execution flow, including news retrieval, filtering, messaging, and resource management.
-
----
-
-#### **Purpose**
-- Coordinates the retrieval, filtering, and distribution of news articles.
-- Manages logging, NLP resource setup, and script concurrency.
-
----
-
-#### **Key Function: `process_and_send_articles()`**
-- **Retrieves** news articles from Google Alerts.
-- **Filters** out previously processed or duplicate articles.
-- **Sends** new articles to a Telegram channel.
-
----
-
-#### **Main Execution Flow**
-- Verifies and downloads required NLP resources (e.g., `nltk.punkt`).
-- Logs the script start time in `run_times.txt` and `log.txt`.
-- Sends a "script started" message to Telegram.
-- Prevents duplicate execution by checking for existing lock files.
-- Creates a lock file to manage execution state.
-- Calls `process_and_send_articles()` to run the main logic.
-- Handles all exceptions and sends error notifications to Telegram.
-- Removes the lock file as part of cleanup, ensuring future runs are not blocked.
-
----
-
-#### **External Dependencies**
-- **News Retrieval**: `feedparser`, `newspaper3k`
-- **NLP Processing**: `nltk`, `transformers`
-- **Web Scraping**: `BeautifulSoup`
-- **System Monitoring**: `psutil`
-- **Messaging**: Internal modules like `messaging.py`, `news_retrieval.py` for Telegram integration
-
----
-
-#### **Files and Logs**
-- **Lock File**: `script_running.lock` – Tracks whether the script is already running.
-- **Log Files**:
-  - `run_times.txt`: Records each execution timestamp.
-  - `log.txt`: Captures detailed script logs and debugging info.
-
----
-
-#### **Additional Notes**
-- Implements robust error handling and logging.
-- Uses lock mechanisms to ensure safe single-instance execution.
-- Designed for stable, autonomous operation as part of an automated news delivery pipeline.
-
----
-
-**Source**: [View the file on GitHub](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/main.py)
-
-### Messaging Module: `messaging.py`
 
 The `messaging.py` file provides essential functions for sending messages to communication platforms such as **Telegram** and **Microsoft Teams**. It plays a critical role in automating the dissemination of news articles with a focus on reliability, clarity, and error tolerance.
 
@@ -335,9 +330,8 @@ The `messaging.py` file provides essential functions for sending messages to com
 
 ---
 
-**Source**: [View the file on GitHub](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/messaging.py)
+### News Retrieval Module: [`news_retrieval.py`](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/news_retrieval.py)
 
-### News Retrieval Module: `news_retrieval.py`
 
 The `news_retrieval.py` module is responsible for **fetching**, **processing**, and **filtering** news articles from RSS feeds and external sources. It ensures that only relevant, valid, and unique articles move forward in the CyberNewsBot pipeline.
 
@@ -401,9 +395,7 @@ The `news_retrieval.py` module is responsible for **fetching**, **processing**, 
 
 ---
 
-**Source**: [View the file on GitHub](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/news_retrieval.py)
-
-### Summarization Module: `summarizer.py`
+### Summarization Module: [`summarizer.py` ](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/summarizer.py)
 
 The `src/summarizer.py` module is a core component of the **CyberNewsBot** project. It provides powerful and flexible text summarization capabilities using state-of-the-art NLP models and efficient GPU/CPU handling.
 
@@ -457,8 +449,12 @@ summary = summarize_text("Your long input text here...", title="Optional Title")
 print(summary)
 
 ### Text Processing Module: `text_processing.py`
+```
 
-The `src/text_processing.py` file is a **utility module** in the **CyberNewsBot** project, providing essential functions for **text cleaning**, **URL processing**, **relevance scoring**, and **duplicate detection**. It ensures consistency and quality of input data before it is passed to downstream components such as the summarizer or message delivery systems.
+---
+
+### [`text_processing.py` ](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/text_processing.py)
+This file is a **utility module** in the **CyberNewsBot** project, providing essential functions for **text cleaning**, **URL processing**, **relevance scoring**, and **duplicate detection**. It ensures consistency and quality of input data before it is passed to downstream components such as the summarizer or message delivery systems.
 
 ---
 
@@ -517,8 +513,9 @@ keywords = extract_keywords("Cybersecurity is evolving fast. Companies need bett
 
 # Generate content hash
 content_hash = compute_text_hash("<p>Breaking news on AI and cybersecurity.</p>")
+```
 
-
+---
 
 ### Project Structure
 - `main.py`: Entry point for the application.
@@ -532,6 +529,8 @@ content_hash = compute_text_hash("<p>Breaking news on AI and cybersecurity.</p>"
 - `requirements.txt`: Lists all dependencies required for the project.
 - `posted_news_ud.json`: Stores metadata of successfully posted news articles.
 - `skipped_news_ud.json`: Tracks articles that failed processing.
+
+---
 
 ### Setup
 1. Clone the repository.
@@ -551,6 +550,8 @@ content_hash = compute_text_hash("<p>Breaking news on AI and cybersecurity.</p>"
    ```bash
    python main.py
 
+---
+
 ### Dependencies
 - `beautifulsoup4`
 - `feedparser`
@@ -562,12 +563,15 @@ content_hash = compute_text_hash("<p>Breaking news on AI and cybersecurity.</p>"
 - `torch`
 - `transformers`
 
+---
 
 ### Output Files
 - ` posted_news_ud.json: All articles sent to Telegram/Teams `
 - `skipped_news_ud.json: Articles skipped with reason, timestamp, and fail count`
 - ` app.log: Debug logs and events`
 - ` run_times.txt: Each run’s timestamp`
+
+---
 
 ### License
 -`This project is licensed under the MIT License.`
