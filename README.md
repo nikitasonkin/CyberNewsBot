@@ -7,64 +7,63 @@ CyberNewsBot is a news aggregation system that retrieves, processes, summarizes,
 
 ### Configuration File: [`config.py`](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/config.py)
 
-
 The `config.py` file is a crucial component of the **CyberNewsBot** project, responsible for managing configurations, environment settings, and logging. Below is a structured overview of its functionality:
 
 ---
 
 #### **Logging System**
-- **Purpose**: Sets up logging for both console and file outputs.
+- **Purpose**: Sets up logging for both console and file outputs.  
 - **Key Features**:
-  - Logs to a file (`app.log`) with rotation:
-    - Maximum file size: 10 MB.
-    - Keeps 5 backup files.
-  - Formats logs with: `timestamp - logger name - log level - message`.
-  - Logs both INFO and DEBUG levels.
-- **Why It Matters**: Ensures detailed and consistent logging for debugging and monitoring purposes.
+  - Logs to a rotating file `app.log`  
+    - **Max size**: 10 MB  
+    - **Backups**: 5 files
+  - Log format: `timestamp - logger name - log level - message`
+  - Captures both **INFO** (console) and **DEBUG** (file) levels
+- **Why It Matters**: Provides detailed, consistent logs for debugging and monitoring.
 
 ---
 
 #### **Environment Variables**
-This file relies on environment variables to fetch sensitive or configurable settings. These are loaded via the `dotenv` library.
+This file relies on environment variables (loaded with **dotenv**) for configurable or sensitive settings.
 
 - **Critical Variables**:
-  - `RSS_FEED_URL`: A comma-separated list of RSS feed URLs (mandatory).
-  - `RSS_COUNTRY_MAPPINGS`: Maps RSS feed URLs to countries (optional).
-  - `API_KEY`, `SEARCH_ENGINE_ID`: Keys for external integrations.
-  - `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`: Credentials for Telegram bot integration.
-  - `TEAMS_WEBHOOK_URL`: Webhook for Microsoft Teams notifications.
+  - `RSS_FEED_URL` – comma-separated RSS URLs (mandatory)
+  - `RSS_COUNTRY_MAPPINGS` – optional `url:country` pairs
+  - `API_KEY`, `SEARCH_ENGINE_ID` – external-integration keys
+  - `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` – Telegram credentials
+  - `TEAMS_WEBHOOK_URL` – Microsoft Teams webhook
 - **Validation**:
-  - Ensures that all critical environment variables are present.
-  - Logs warnings for missing variables, ensuring issues are identified early.
+  - Verifies presence of required variables
+  - Logs warnings for any that are missing, ensuring issues surface early
 
 ---
 
 #### **File Constants**
-- `LOCK_FILE`: Used to prevent multiple script instances from running concurrently.
-- `POSTED_NEWS_FILE`: Tracks previously posted news in JSON format to avoid duplicates.
+- `LOCK_FILE` – prevents concurrent script instances  
+- `POSTED_NEWS_FILE` – JSON log of previously posted news (deduplication)
 
 ---
 
 #### **RSS Feed Management**
-- Loads and cleans RSS feed URLs:
-  - Strips whitespace and skips empty URLs.
-  - Logs a sample of loaded feeds for verification.
-- Handles URL-country mappings:
-  - Parses mappings in the format: `url1:country1,url2:country2`.
-  - Logs errors if mappings are malformed or missing.
+- **Loading & Cleaning**:
+  - Trims whitespace, skips empty URLs
+  - Raises an error if no valid feeds exist
+- **Country Mapping**:
+  - Parses mappings like `url1:country1,url2:country2`
+  - Logs malformed or missing mappings
 
 ---
 
 #### **Validation Function**
-- **Purpose**: Ensures all required environment variables are set and valid.
+- **Purpose**: Confirms all required environment variables are set.  
 - **Implementation**:
-  - Checks for missing variables and logs warnings.
-  - Returns a boolean indicating validation success.
+  - Checks each key and logs any omissions
+  - Returns `True/False` to signal validation success
 
 ---
 
 #### **Error Handling**
-- Logs errors and warnings for missing or malformed environment variables, ensuring robustness.
+Comprehensive warnings/error logs for missing or malformed variables ensure robustness.
 
 ---
 
@@ -97,12 +96,12 @@ The `json_handler.py` file is an essential component of the **CyberNewsBot** pro
 ---
 
 #### **Skipped News Management**
-- **Function**: `load_skipped_news()`
-  - **Purpose**: Loads skipped news articles from `skipped_news_ud.json`.
-  - **Key Features**:
-    - Converts list-based JSON into a dictionary for efficient access.
-    - Filters out old or failed articles based on a 14-day cutoff.
-    - Removes articles with more than 3 failed attempts.
+- **Function**: `load_skipped_news()`  
+  - Loads `skipped_news_ud.json` and converts legacy list format into a dictionary keyed by `id` for quick look‑ups.  
+  - **Automatic cleanup**:  
+    - Removes entries older than 14 days.  
+    - Ignores articles with `fail_count` ≥ 3 (too many failures).  
+  - Writes the filtered dataset back to disk and returns it.
 
 - **Function**: `save_skipped_news(skipped_articles)`
   - **Purpose**: Updates and saves the skipped news list.
@@ -217,118 +216,76 @@ The `src/main.py` file serves as the main entry point for the **CyberNewsBot** a
 
 ---
 
-### Main Script File: `main.py`
-
-The `src/main.py` file serves as the main entry point for the **CyberNewsBot** application — a news aggregation, processing, and distribution tool. It orchestrates the overall execution flow, including news retrieval, filtering, messaging, and resource management.
-
----
-
-#### **Purpose**
-- Coordinates the retrieval, filtering, and distribution of news articles.
-- Manages logging, NLP resource setup, and script concurrency.
-
----
-
-#### **Key Function: `process_and_send_articles()`**
-- **Retrieves** news articles from Google Alerts.
-- **Filters** out previously processed or duplicate articles.
-- **Sends** new articles to a Telegram channel.
-
----
-
-#### **Main Execution Flow**
-- Verifies and downloads required NLP resources (e.g., `nltk.punkt`).
-- Logs the script start time in `run_times.txt` and `log.txt`.
-- Sends a "script started" message to Telegram.
-- Prevents duplicate execution by checking for existing lock files.
-- Creates a lock file to manage execution state.
-- Calls `process_and_send_articles()` to run the main logic.
-- Handles all exceptions and sends error notifications to Telegram.
-- Removes the lock file as part of cleanup, ensuring future runs are not blocked.
-
----
-
-#### **External Dependencies**
-- **News Retrieval**: `feedparser`, `newspaper3k`
-- **NLP Processing**: `nltk`, `transformers`
-- **Web Scraping**: `BeautifulSoup`
-- **System Monitoring**: `psutil`
-- **Messaging**: Internal modules like `messaging.py`, `news_retrieval.py` for Telegram integration
-
----
-
-#### **Files and Logs**
-- **Lock File**: `script_running.lock` – Tracks whether the script is already running.
-- **Log Files**:
-  - `run_times.txt`: Records each execution timestamp.
-  - `log.txt`: Captures detailed script logs and debugging info.
-
----
-
-#### **Additional Notes**
-- Implements robust error handling and logging.
-- Uses lock mechanisms to ensure safe single-instance execution.
-- Designed for stable, autonomous operation as part of an automated news delivery pipeline.
-
----
-
 ### Messaging Module: [`messaging.py`](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/messaging.py)
 
-
-The `messaging.py` file provides essential functions for sending messages to communication platforms such as **Telegram** and **Microsoft Teams**. It plays a critical role in automating the dissemination of news articles with a focus on reliability, clarity, and error tolerance.
+The `messaging.py` file provides the **communication layer** for CyberNewsBot, enabling automated delivery of news summaries to **Telegram** and **Microsoft Teams** while enforcing deduplication, error-tolerance, and retry logic.
 
 ---
 
 #### **Key Functions**
 
-- **`send_telegram_message(message, retries=3, delay=5)`**
-  - **Purpose**: Sends a message to a Telegram chat using a bot token and chat ID.
-  - **Features**:
-    - Retries in case of network issues or HTTP 429 (rate limiting).
-    - Cleans the message content (e.g., HTML tags) before sending.
-    - Logs errors if sending fails after all retries.
-
-- **`post_articles_to_telegram(articles)`**
-  - **Purpose**: Processes and sends a batch of news articles to a Telegram channel.
-  - **Key Features**:
-    - Filters out duplicate articles based on `title`, `URL`, or `text_hash`.
-    - Fetches full text of articles (if needed) and summarizes them.
-    - Formats and sends concise messages via Telegram.
-    - Tracks and saves sent and skipped articles for reference.
-
-- **`send_to_teams(message, webhook_url, retries=3, delay=5)`**
-  - **Purpose**: Sends a formatted message to a Microsoft Teams channel via webhook.
-  - **Key Features**:
-    - Supports retries on rate-limit errors.
-    - Sends content as an adaptive card with basic formatting.
+| Function | Purpose | Highlights |
+| --- | --- | --- |
+| `send_telegram_message(message, retries=3, delay=5)` | Sends a plain-text or HTML message to a Telegram chat. | • Cleans HTML tags<br>• Retries on network errors & HTTP 429<br>• Logs status and errors |
+| `post_articles_to_telegram(articles)` | Main dispatcher that processes a batch of article dictionaries and posts them to Telegram. | • Deduplicates by `title`, `url`, and `text_hash`<br>• Fetches full text & summarises with `summarize_text`<br>• Saves sent articles via `save_posted_news`<br>• Tracks failures via `save_skipped_news` |
+| `send_to_teams(message, webhook_url, retries=3, delay=5)` | Sends an Adaptive Card payload to Microsoft Teams via webhook. | • Retries only on HTTP 429<br>• Rich formatting (title, date, summary, link)<br>• Logs success & failure |
 
 ---
 
-#### **Core Features**
+#### **Core Workflow in `post_articles_to_telegram()`**
 
-- **Error Handling**: Built-in logic to catch and manage:
-  - Network failures
-  - Invalid responses
-  - Duplicate detection
-- **Content Summarization**:
-  - Integrates with NLP tools to generate concise summaries for Telegram/Teams messages.
-- **Configurable Retries**:
-  - Functions include retry logic to handle transient issues.
-- **Deduplication Logic**:
-  - Prevents sending the same article multiple times using checks against previously posted articles.
+1. **Load State**  
+   - `load_skipped_news()` and `load_posted_news()` fetch historical data to prevent duplicates.
+
+2. **Deduplication Checks**  
+   - Compares incoming articles against previously posted (`title`, normalized `url`, `text_hash`).  
+   - Skips articles that failed ≥ 3 times within the last 14 days.
+
+3. **Content Pipeline**  
+   - Fetches full article text via `fetch_full_text()`.  
+   - Generates a concise summary with `summarize_text()`.  
+   - Recomputes `text_hash` if missing.
+
+4. **Message Construction & Send**  
+   - Builds an HTML Telegram message and an Adaptive Card payload for Teams.  
+   - Calls `send_telegram_message()` and `send_to_teams()`, handling transient errors with retries.
+
+5. **Persistence**  
+   - Updates `posted_news_ud.json` and `skipped_news_ud.json` through `save_posted_news()` / `save_skipped_news()`.
+
+---
+
+#### **Error Handling & Resilience**
+
+- **Network Resilience**: Retries with exponential-style delay for HTTP 429 (rate limiting).  
+- **Graceful Fallbacks**: Skips or re-queues articles on fetch/summarization failures without crashing the pipeline.  
+- **Atomic Writes**: Uses temporary files when updating JSON stores to avoid corruption.  
+- **Verbose Logging**: Prints clear status messages for each major step (sending, skipping, hashing, summarising).
 
 ---
 
 #### **Dependencies**
 
-- **Standard Libraries**: `os`, `datetime`, `json`, `time`, `re`
-- **Third-Party Libraries**:
-  - `requests`: For HTTP requests to Telegram and Teams.
-  - `BeautifulSoup`: For HTML content cleaning.
-  - `nltk`, `transformers`: For summarization and NLP processing.
-  - `feedparser`: For RSS integration.
+- **Standard**: `os`, `time`, `datetime`, `json`, `re`, `hashlib`, `html`
+- **Networking**: `requests`
+- **Parsing / NLP**: `BeautifulSoup`, `nltk`, `transformers`
+- **News Utilities**: `feedparser`, `newspaper3k`
+- **Internal Modules**:  
+  - `json_handler.py` – load/save helpers  
+  - `text_processing.py` – cleaning, hashing, source extraction  
+  - `summarizer.py` – summary generation  
+  - `news_retrieval.py` – full-text fetcher
 
 ---
+
+#### **Design Notes**
+
+- Separates concerns: message formatting vs. transport vs. persistence.  
+- Centralises duplicate detection, ensuring each article is posted exactly once.  
+- Supports multi-platform delivery (Telegram + Teams) with unified retry semantics.  
+
+---
+
 
 ### News Retrieval Module: [`news_retrieval.py`](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/news_retrieval.py)
 
@@ -453,66 +410,70 @@ print(summary)
 
 ---
 
-### [`text_processing.py` ](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/text_processing.py)
-This file is a **utility module** in the **CyberNewsBot** project, providing essential functions for **text cleaning**, **URL processing**, **relevance scoring**, and **duplicate detection**. It ensures consistency and quality of input data before it is passed to downstream components such as the summarizer or message delivery systems.
+### Utility Module: [`text_processing.py`](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/text_processing.py)
+
+`text_processing.py` delivers the **core text-sanitizing toolkit** for CyberNewsBot.  
+It standardizes URLs, titles, and article bodies; calculates relevance; extracts keywords; and creates stable hashes for duplicate detection.
 
 ---
 
-#### **Key Features**
+#### **Cleaning & Normalization**
+- **`clean_url(url)`**  
+  Canonicalizes links by dropping query strings and fragments.
 
-- **URL Cleaning**
-  - `clean_url(url)`: Removes query parameters from URLs for normalization and deduplication.
+- **`clean_title(title)`**  
+  Strips HTML for user-facing display.
 
-- **Title Cleaning**
-  - `clean_title(title)`: Strips HTML tags for cleaner display in messages.
-  - `clean_title_for_matching(title)`: Prepares titles for comparison by:
-    - Removing HTML tags
-    - Lowercasing text
-    - Stripping suffixes (e.g., site names)
+- **`clean_title_for_matching(title)`**  
+  Preps titles for deduplication (strip HTML ➜ lowercase ➜ remove common suffixes like “ - Site”).
 
-- **Text Cleaning**
-  - `clean_text(raw_text)`: Cleans HTML, whitespace, and extraneous characters from raw text.
-  - `safe_text_cut(text, max_words=500)`: Trims long texts to a maximum word limit, useful for model input.
+- **`clean_text(raw_text)`**  
+  Removes HTML tags, collapses whitespace.
 
-- **Relevance and Matching**
-  - `is_summary_relevant(summary, title, threshold=2)`: Checks if the summary contains enough overlap with the title to be considered relevant.
-  - `extract_text_relevance(text, keywords)`: Calculates how many keywords appear in the text, supporting filtering logic.
+- **`safe_text_cut(text, max_words=500)`**  
+  Ensures text stays within length budgets for downstream models.
 
-- **YouTube Link Detection**
-  - `is_youtube_link(url)`: Determines whether the provided URL is a YouTube video link.
+---
 
-- **Duplicate Detection**
-  - `compute_text_hash(text)`: Generates a SHA-256 hash of cleaned text for identifying duplicate content.
+#### **Relevance & Filtering**
+- **`is_summary_relevant(summary, title, threshold=2)`**  
+  Confirms summary shares at least *threshold* words with the title.
 
-- **Keyword Extraction**
-  - `extract_keywords(text, num_keywords=5)`: Extracts the most common words from the text using frequency analysis.
+- **`extract_text_relevance(text, keywords)`**  
+  Counts intersection between tokenized text and keyword list (NLTK).
 
-- **Source Extraction**
-  - `extract_source_from_url(url)`: Extracts and returns the domain name (e.g., `bbc.com`) from a URL.
+- **`is_youtube_link(url)`**  
+  Quick domain check for YouTube links (`youtube.com`, `youtu.be`).
+
+---
+
+#### **Duplicate Detection**
+- **`compute_text_hash(text)`**  
+  Generates SHA-256 hash of cleaned text → resilient identifier even if title/URL changes.
+
+---
+
+#### **Keyword & Source Utilities**
+- **`extract_keywords(text, num_keywords=5)`**  
+  Returns the top-N most frequent alpha tokens (>4 chars) via `collections.Counter`.
+
+- **`extract_source_from_url(url)`**  
+  Extracts domain (e.g., `bbc.com`) for source attribution.
 
 ---
 
 #### **Dependencies**
-
-- **Standard Libraries**:
-  - `re`, `hashlib`, `urllib.parse`, `collections.Counter`
-- **Third-Party Libraries**:
-  - `nltk`: Tokenization and basic NLP utilities
-  - `BeautifulSoup`: Cleans HTML content
+- **Standard**: `re`, `hashlib`, `urllib.parse`, `collections.Counter`
+- **Third-Party**: `BeautifulSoup` (HTML stripping), `nltk` (tokenization)
 
 ---
 
-#### **Example Usage**
-
+#### **Typical Usage**
 ```python
-# Clean a URL
-cleaned_url = clean_url("https://example.com/article?id=123&ref=xyz")
-
-# Extract keywords from a text
-keywords = extract_keywords("Cybersecurity is evolving fast. Companies need better defense.", num_keywords=3)
-
-# Generate content hash
-content_hash = compute_text_hash("<p>Breaking news on AI and cybersecurity.</p>")
+canonical = clean_url("https://news.com/article?id=1&utm=xyz")
+title_key  = clean_title_for_matching("<h1>Breaking News - News.com</h1>")
+hash_id    = compute_text_hash(article_summary)
+keywords   = extract_keywords(article_body, 5)
 ```
 
 ---
