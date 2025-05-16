@@ -5,7 +5,8 @@ CyberNewsBot is a news aggregation system that retrieves, processes, summarizes,
 
 ---
 
-### Configuration File: `config.py`
+### Configuration File: [`config.py`](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/config.py)
+
 
 The `config.py` file is a crucial component of the **CyberNewsBot** project, responsible for managing configurations, environment settings, and logging. Below is a structured overview of its functionality:
 
@@ -66,8 +67,6 @@ This file relies on environment variables to fetch sensitive or configurable set
 - Logs errors and warnings for missing or malformed environment variables, ensuring robustness.
 
 ---
-
-**Source**: [View the file on GitHub](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/config.py)
 
 ### JSON Handler File: `json_handler.py`
 
