@@ -61,21 +61,12 @@ The `config.py` file is a crucial component of the **CyberNewsBot** project, res
   - Captures both **INFO** (console) and **DEBUG** (file) levels
 - **Why It Matters**: Provides detailed, consistent logs for debugging and monitoring.
 
-#### **Environment Variables**
-This file relies on environment variables (loaded with **dotenv**) for configurable or sensitive settings.
-
 - **Critical Variables**:
   - `RSS_FEED_URL` – comma-separated RSS URLs (mandatory)
   - `RSS_COUNTRY_MAPPINGS` – optional `url:country` pairs
   - `API_KEY`, `SEARCH_ENGINE_ID` – external-integration keys
   - `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` – Telegram credentials
   - `TEAMS_WEBHOOK_URL` – Microsoft Teams webhook
-
-- **Validation**: Ensures early warnings if critical variables are missing.
-
-#### **File Constants**
-- `LOCK_FILE` – prevents concurrent script instances  
-- `POSTED_NEWS_FILE` – JSON log of previously posted news (deduplication)
 
 ---
 
@@ -86,14 +77,6 @@ This file relies on environment variables (loaded with **dotenv**) for configura
 - **Country Mapping**:
   - Parses mappings like `url1:country1,url2:country2`
   - Logs malformed or missing mappings
-
----
-
-#### **Validation Function**
-- **Purpose**: Confirms all required environment variables are set.  
-- **Implementation**:
-  - Checks each key and logs any omissions
-  - Returns `True/False` to signal validation success
 
 ---
 
