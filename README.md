@@ -68,8 +68,6 @@ The `config.py` file is a crucial component of the **CyberNewsBot** project, res
   - `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` – Telegram credentials
   - `TEAMS_WEBHOOK_URL` – Microsoft Teams webhook
 
----
-
 #### **RSS Feed Management**
 - **Loading & Cleaning**:
   - Trims whitespace, skips empty URLs
@@ -113,8 +111,6 @@ The `json_handler.py` file is an essential component of the **CyberNewsBot** pro
 
 The `lock_manager.py` module provides essential functions for managing lock files to ensure that only one instance of a script runs at a time. This is particularly useful in scenarios where concurrent executions could cause conflicts or duplicate processing.
 
----
-
 #### **Key Functions**
 
 - **`create_lock()`**
@@ -151,8 +147,6 @@ The `src/main.py` file serves as the main entry point for the **CyberNewsBot** a
 - **Filters** out previously processed or duplicate articles.
 - **Sends** new articles to a Telegram channel.
 
----
-
 #### **Main Execution Flow**
 - Verifies and downloads required NLP resources (e.g., `nltk.punkt`).
 - Logs the script start time in `run_times.txt` and `log.txt`.
@@ -169,7 +163,6 @@ The `src/main.py` file serves as the main entry point for the **CyberNewsBot** a
 
 The `messaging.py` file provides the **communication layer** for CyberNewsBot, enabling automated delivery of news summaries to **Telegram** and **Microsoft Teams** while enforcing deduplication, error-tolerance, and retry logic.
 
-
 #### **Key Functions**
 
 | Function | Purpose | Highlights |
@@ -177,8 +170,6 @@ The `messaging.py` file provides the **communication layer** for CyberNewsBot, e
 | `send_telegram_message(message, retries=3, delay=5)` | Sends a plain-text or HTML message to a Telegram chat. | • Cleans HTML tags<br>• Retries on network errors & HTTP 429<br>• Logs status and errors |
 | `post_articles_to_telegram(articles)` | Main dispatcher that processes a batch of article dictionaries and posts them to Telegram. | • Deduplicates by `title`, `url`, and `text_hash`<br>• Fetches full text & summarises with `summarize_text`<br>• Saves sent articles via `save_posted_news`<br>• Tracks failures via `save_skipped_news` |
 | `send_to_teams(message, webhook_url, retries=3, delay=5)` | Sends an Adaptive Card payload to Microsoft Teams via webhook. | • Retries only on HTTP 429<br>• Rich formatting (title, date, summary, link)<br>• Logs success & failure |
-
----
 
 #### **Core Workflow in `post_articles_to_telegram()`**
 
@@ -208,8 +199,6 @@ The `messaging.py` file provides the **communication layer** for CyberNewsBot, e
 
 The `news_retrieval.py` module is responsible for **fetching**, **processing**, and **filtering** news articles from RSS feeds and external sources. It ensures that only relevant, valid, and unique articles move forward in the CyberNewsBot pipeline.
 
----
-
 #### **Key Functions**
 
 - **`get_google_alerts(time_range=1)`** : Fetches and validates RSS news.
@@ -218,20 +207,9 @@ The `news_retrieval.py` module is responsible for **fetching**, **processing**, 
 
 ---
 
-#### **Key Features**
-- Efficient RSS feed parsing and news retrieval.
-- Intelligent article validation (title, summary, date).
-- Duplicate prevention using hash-based comparison.
-- Full-text fetching and processing.
-- Seamless integration with custom modules for configuration, text cleaning, and history tracking.
-
----
-
 ### Summarization Module: [`summarizer.py` ](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/summarizer.py)
 
 The `src/summarizer.py` module is a core component of the **CyberNewsBot** project. It provides powerful and flexible text summarization capabilities using state-of-the-art NLP models and efficient GPU/CPU handling.
-
----
 
 #### **Key Features**
 
@@ -255,8 +233,6 @@ The `src/summarizer.py` module is a core component of the **CyberNewsBot** proje
     - GPU memory issues
     - Inference errors
 
----
-
 #### **Example Usage**
 
 ```python
@@ -278,12 +254,6 @@ print(summary)
 `text_processing.py` delivers the **core text-sanitizing toolkit** for CyberNewsBot.  
 It standardizes URLs, titles, and article bodies; calculates relevance; extracts keywords; and creates stable hashes for duplicate detection.
 
----
-
-#### **Key Features**
-- **
-
-
 #### **Cleaning & Normalization**
 - **`clean_url(url)`**  
   Canonicalizes links by dropping query strings and fragments.
@@ -300,7 +270,6 @@ It standardizes URLs, titles, and article bodies; calculates relevance; extracts
 - **`safe_text_cut(text, max_words=500)`**  
   Ensures text stays within length budgets for downstream models.
 
----
 
 #### **Relevance & Filtering**
 - **`is_summary_relevant(summary, title, threshold=2)`**  
@@ -312,13 +281,11 @@ It standardizes URLs, titles, and article bodies; calculates relevance; extracts
 - **`is_youtube_link(url)`**  
   Quick domain check for YouTube links (`youtube.com`, `youtu.be`).
 
----
 
 #### **Duplicate Detection**
 - **`compute_text_hash(text)`**  
   Generates SHA-256 hash of cleaned text → resilient identifier even if title/URL changes.
-
----
+  
 
 #### **Typical Usage**
 ```python
