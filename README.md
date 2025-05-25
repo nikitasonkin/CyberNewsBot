@@ -286,15 +286,6 @@ It standardizes URLs, titles, and article bodies; calculates relevance; extracts
 - **`compute_text_hash(text)`**  
   Generates SHA-256 hash of cleaned text → resilient identifier even if title/URL changes.
   
-
-#### **Typical Usage**
-```python
-canonical = clean_url("https://news.com/article?id=1&utm=xyz")
-title_key  = clean_title_for_matching("<h1>Breaking News - News.com</h1>")
-hash_id    = compute_text_hash(article_summary)
-keywords   = extract_keywords(article_body, 5)
-```
-
 ---
 
 ### Output Files
