@@ -1,7 +1,48 @@
 ## CyberNewsBot 🛡️
 
+## Table of Contents  
+- [Overview](#overview)  
+- [Project Structure](#project-structure)  
+- [Setup](#setup)  
+- [Configuration File: `config.py`](#configuration-file-configpy)  
+- [JSON Handler File: `json_handler.py`](#json-handler-file-json_handlerpy)  
+- [Lock Manager File: `lock_manager.py`](#lock-manager-file-lock_managerpy)  
+- [Main Script File: `main.py`](#main-script-file-mainpy)  
+- [Messaging Module: `messaging.py`](#messaging-module-messagingpy)  
+- [News Retrieval Module: `news_retrieval.py`](#news-retrieval-module-news_retrievalpy)  
+- [Summarization Module: `summarizer.py`](#summarization-module-summarizerpy)  
+- [Text Processing Module: `text_processing.py`](#text-processing-module-text_processingpy)  
+- [Output Files](#output-files)  
+- [License](#license)  
+- [Author](#author)  
+
+---
+
 ## Overview
 CyberNewsBot is a news aggregation system that retrieves, processes, summarizes, and distributes cybersecurity-related articles from RSS feeds. It includes text cleaning, summarization, deduplication, and message delivery to platforms like Telegram and Microsoft Teams.
+
+---
+
+## Project Structure
+- `main.py`: Application entry point.  
+- `config.py`: Configuration and environment settings.  
+- `news_retrieval.py`: Retrieves and filters news articles.  
+- `text_processing.py`: Text cleaning and processing utilities.  
+- `summarizer.py`: Summarizes text using NLP models.  
+- `messaging.py`: Sends messages to Telegram and Teams.  
+- `json_handler.py`: Manages JSON data (posted/skipped news).  
+- `lock_manager.py`: Ensures single-instance script execution.  
+- `requirements.txt`: Project dependencies.  
+- `posted_news_ud.json`: Successfully posted news articles metadata.  
+- `skipped_news_ud.json`: Tracks articles that failed processing.  
+
+---
+
+## Setup
+1. Clone the repository.  
+2. Install dependencies:  
+   ```bash
+   pip install -r requirements.txt
 
 ---
 
@@ -9,7 +50,6 @@ CyberNewsBot is a news aggregation system that retrieves, processes, summarizes,
 
 The `config.py` file is a crucial component of the **CyberNewsBot** project, responsible for managing configurations, environment settings, and logging. Below is a structured overview of its functionality:
 
----
 
 #### **Logging System**
 - **Purpose**: Sets up logging for both console and file outputs.  
@@ -21,8 +61,6 @@ The `config.py` file is a crucial component of the **CyberNewsBot** project, res
   - Captures both **INFO** (console) and **DEBUG** (file) levels
 - **Why It Matters**: Provides detailed, consistent logs for debugging and monitoring.
 
----
-
 #### **Environment Variables**
 This file relies on environment variables (loaded with **dotenv**) for configurable or sensitive settings.
 
@@ -32,11 +70,8 @@ This file relies on environment variables (loaded with **dotenv**) for configura
   - `API_KEY`, `SEARCH_ENGINE_ID` – external-integration keys
   - `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` – Telegram credentials
   - `TEAMS_WEBHOOK_URL` – Microsoft Teams webhook
-- **Validation**:
-  - Verifies presence of required variables
-  - Logs warnings for any that are missing, ensuring issues surface early
 
----
+- **Validation**: Ensures early warnings if critical variables are missing.
 
 #### **File Constants**
 - `LOCK_FILE` – prevents concurrent script instances  
@@ -62,16 +97,9 @@ This file relies on environment variables (loaded with **dotenv**) for configura
 
 ---
 
-#### **Error Handling**
-Comprehensive warnings/error logs for missing or malformed variables ensure robustness.
-
----
-
 ### JSON Handler File: [ `json_handler.py`](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/json_handler.py)
 
 The `json_handler.py` file is an essential component of the **CyberNewsBot** project, responsible for handling JSON data operations such as loading, saving, and processing. Below is a structured overview of its functionality:
-
----
 
 #### **Safe JSON Loading**
 - **Function**: `safe_load_json(filepath, default)`
@@ -80,20 +108,12 @@ The `json_handler.py` file is an essential component of the **CyberNewsBot** pro
   - Returns a default value if the file is missing or contains invalid JSON.
   - Ensures robustness when dealing with external data sources.
 
----
 
 #### **Posted News Management**
 - **Function**: `load_posted_news()`
   - **Purpose**: Loads previously posted news articles from `POSTED_NEWS_FILE`.
   - **Error Handling**: Returns an empty list if the file is not found or contains invalid JSON.
 
-- **Function**: `save_posted_news(posted_news)`
-  - **Purpose**: Saves a list of posted news articles to `POSTED_NEWS_FILE`.
-  - **Key Features**:
-    - Writes to a temporary file for data integrity.
-    - Logs the number of saved articles.
-
----
 
 #### **Skipped News Management**
 - **Function**: `load_skipped_news()`  
@@ -102,26 +122,6 @@ The `json_handler.py` file is an essential component of the **CyberNewsBot** pro
     - Removes entries older than 14 days.  
     - Ignores articles with `fail_count` ≥ 3 (too many failures).  
   - Writes the filtered dataset back to disk and returns it.
-
-- **Function**: `save_skipped_news(skipped_articles)`
-  - **Purpose**: Updates and saves the skipped news list.
-  - **Key Features**:
-    - Merges new and existing skipped articles.
-    - Tracks failure counts and updates metadata like `reason`, `summary`, and `text_hash`.
-    - Dynamically calculates missing `text_hash` values.
-    - Logs the number of new and total skipped articles.
-
----
-
-#### **Error Handling and Validation**
-- Each function incorporates robust error handling to manage:
-  - Missing files
-  - Invalid JSON
-  - Unexpected data formats
-- Skipped articles are validated and enriched with metadata such as:
-  - Publication dates (`published_date`)
-  - Source information
-  - Reason for skipping
 
 ---
 
@@ -152,8 +152,6 @@ The `lock_manager.py` module provides essential functions for managing lock file
   - **Purpose**: Verifies whether a process with the given PID is still running.
   - **Integration**: Uses the `psutil` library for cross-platform process checks.
 
----
-
 #### **Integration**
 - The module relies on a global constant `LOCK_FILE`, which is defined in the `config.py` module.
 - It integrates with `psutil` to handle process management efficiently and reliably.
@@ -162,16 +160,8 @@ The `lock_manager.py` module provides essential functions for managing lock file
 
 ### Main Script File: [`main.py`](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/main.py)
 
-
 The `src/main.py` file serves as the main entry point for the **CyberNewsBot** application — a news aggregation, processing, and distribution tool. It orchestrates the overall execution flow, including news retrieval, filtering, messaging, and resource management.
 
----
-
-#### **Purpose**
-- Coordinates the retrieval, filtering, and distribution of news articles.
-- Manages logging, NLP resource setup, and script concurrency.
-
----
 
 #### **Key Function: `process_and_send_articles()`**
 - **Retrieves** news articles from Google Alerts.
@@ -192,35 +182,10 @@ The `src/main.py` file serves as the main entry point for the **CyberNewsBot** a
 
 ---
 
-#### **External Dependencies**
-- **News Retrieval**: `feedparser`, `newspaper3k`
-- **NLP Processing**: `nltk`, `transformers`
-- **Web Scraping**: `BeautifulSoup`
-- **System Monitoring**: `psutil`
-- **Messaging**: Internal modules like `messaging.py`, `news_retrieval.py` for Telegram integration
-
----
-
-#### **Files and Logs**
-- **Lock File**: `script_running.lock` – Tracks whether the script is already running.
-- **Log Files**:
-  - `run_times.txt`: Records each execution timestamp.
-  - `log.txt`: Captures detailed script logs and debugging info.
-
----
-
-#### **Additional Notes**
-- Implements robust error handling and logging.
-- Uses lock mechanisms to ensure safe single-instance execution.
-- Designed for stable, autonomous operation as part of an automated news delivery pipeline.
-
----
-
 ### Messaging Module: [`messaging.py`](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/messaging.py)
 
 The `messaging.py` file provides the **communication layer** for CyberNewsBot, enabling automated delivery of news summaries to **Telegram** and **Microsoft Teams** while enforcing deduplication, error-tolerance, and retry logic.
 
----
 
 #### **Key Functions**
 
@@ -255,38 +220,6 @@ The `messaging.py` file provides the **communication layer** for CyberNewsBot, e
 
 ---
 
-#### **Error Handling & Resilience**
-
-- **Network Resilience**: Retries with exponential-style delay for HTTP 429 (rate limiting).  
-- **Graceful Fallbacks**: Skips or re-queues articles on fetch/summarization failures without crashing the pipeline.  
-- **Atomic Writes**: Uses temporary files when updating JSON stores to avoid corruption.  
-- **Verbose Logging**: Prints clear status messages for each major step (sending, skipping, hashing, summarising).
-
----
-
-#### **Dependencies**
-
-- **Standard**: `os`, `time`, `datetime`, `json`, `re`, `hashlib`, `html`
-- **Networking**: `requests`
-- **Parsing / NLP**: `BeautifulSoup`, `nltk`, `transformers`
-- **News Utilities**: `feedparser`, `newspaper3k`
-- **Internal Modules**:  
-  - `json_handler.py` – load/save helpers  
-  - `text_processing.py` – cleaning, hashing, source extraction  
-  - `summarizer.py` – summary generation  
-  - `news_retrieval.py` – full-text fetcher
-
----
-
-#### **Design Notes**
-
-- Separates concerns: message formatting vs. transport vs. persistence.  
-- Centralises duplicate detection, ensuring each article is posted exactly once.  
-- Supports multi-platform delivery (Telegram + Teams) with unified retry semantics.  
-
----
-
-
 ### News Retrieval Module: [`news_retrieval.py`](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/news_retrieval.py)
 
 
@@ -296,34 +229,9 @@ The `news_retrieval.py` module is responsible for **fetching**, **processing**, 
 
 #### **Key Functions**
 
-- **`get_google_alerts(time_range=1)`**
-  - **Purpose**: Retrieves articles from predefined RSS feeds for a specified number of days back.
-  - **Parameters**:
-    - `time_range` (int): Number of days to fetch news for (default: `1` for today's news).
-  - **Features**:
-    - Cleans and normalizes metadata: `title`, `URL`, `summary`, `published_date`.
-    - Filters out incomplete or low-quality articles (e.g., missing title/URL, short summaries).
-    - Extracts metadata including `source`, `keywords`, and `text_hash`.
-  - **Returns**: A list of cleaned and structured article dictionaries.
-
-- **`fetch_full_text(url, max_words=600)`**
-  - **Purpose**: Retrieves and processes the full content of an article from its URL.
-  - **Parameters**:
-    - `url` (str): The article's URL.
-    - `max_words` (int): Maximum number of words to keep (default: `600`).
-  - **Features**:
-    - Uses `newspaper3k` to download and parse content.
-    - Trims long articles and skips articles with less than 10 words.
-    - Gracefully handles errors like parsing failures or connection issues.
-  - **Returns**: Cleaned full-text string or an error indicator.
-
-- **`filter_new_articles(articles)`**
-  - **Purpose**: Filters out previously posted or skipped articles from the new batch.
-  - **Features**:
-    - Loads historical data from `posted_news` and `skipped_news` files.
-    - Removes duplicates using `title`, `URL`, and `text_hash`.
-    - Ensures only fresh, unique articles proceed.
-  - **Returns**: A filtered list of new articles ready for summarization and distribution.
+- **`get_google_alerts(time_range=1)`** : Fetches and validates RSS news.
+- **`fetch_full_text(url, max_words=600)`** : Retrieves and processes article content.
+- **`filter_new_articles(articles)`** : Removes duplicates from the batch.
 
 ---
 
@@ -333,22 +241,6 @@ The `news_retrieval.py` module is responsible for **fetching**, **processing**, 
 - Duplicate prevention using hash-based comparison.
 - Full-text fetching and processing.
 - Seamless integration with custom modules for configuration, text cleaning, and history tracking.
-
----
-
-#### **Dependencies**
-
-- **Standard Libraries**: `re`, `json`, `datetime`, `os`, `sys`
-- **Third-Party Libraries**:
-  - `feedparser`: RSS feed parsing
-  - `BeautifulSoup`: HTML cleaning
-  - `newspaper3k`: Article download and parsing
-  - `nltk`, `transformers`: NLP tasks (summarization, tokenization)
-  - `requests`: HTTP requests
-- **Custom Modules**:
-  - `config`: Loads environment variables and feed settings
-  - `text_processing`: Cleans and tokenizes text
-  - `json_handler`: Manages reading/writing posted and skipped articles
 
 ---
 
@@ -382,18 +274,6 @@ The `src/summarizer.py` module is a core component of the **CyberNewsBot** proje
 
 ---
 
-#### **Dependencies**
-
-- **Core Libraries**:
-  - `transformers`: Hugging Face Transformers for model loading and inference
-  - `torch`: For GPU acceleration and tensor operations
-  - `nltk`: Natural language processing and tokenization
-  - `BeautifulSoup`: HTML tag cleaning
-  - `newspaper3k`: Article extraction for full-text retrieval
-  - `requests`, `re`, `json`: Various utility needs
-
----
-
 #### **Example Usage**
 
 ```python
@@ -416,6 +296,10 @@ print(summary)
 It standardizes URLs, titles, and article bodies; calculates relevance; extracts keywords; and creates stable hashes for duplicate detection.
 
 ---
+
+#### **Key Features**
+- **
+
 
 #### **Cleaning & Normalization**
 - **`clean_url(url)`**  
@@ -453,21 +337,6 @@ It standardizes URLs, titles, and article bodies; calculates relevance; extracts
 
 ---
 
-#### **Keyword & Source Utilities**
-- **`extract_keywords(text, num_keywords=5)`**  
-  Returns the top-N most frequent alpha tokens (>4 chars) via `collections.Counter`.
-
-- **`extract_source_from_url(url)`**  
-  Extracts domain (e.g., `bbc.com`) for source attribution.
-
----
-
-#### **Dependencies**
-- **Standard**: `re`, `hashlib`, `urllib.parse`, `collections.Counter`
-- **Third-Party**: `BeautifulSoup` (HTML stripping), `nltk` (tokenization)
-
----
-
 #### **Typical Usage**
 ```python
 canonical = clean_url("https://news.com/article?id=1&utm=xyz")
@@ -475,54 +344,6 @@ title_key  = clean_title_for_matching("<h1>Breaking News - News.com</h1>")
 hash_id    = compute_text_hash(article_summary)
 keywords   = extract_keywords(article_body, 5)
 ```
-
----
-
-### Project Structure
-- `main.py`: Entry point for the application.
-- `config.py`: Configuration and environment settings.
-- `news_retrieval.py`: Functions for retrieving and filtering news articles.
-- `text_processing.py`: Utilities for cleaning and processing text.
-- `summarizer.py`: Functions for summarizing text using machine learning models.
-- `messaging.py`: Handles sending messages to Telegram and Teams.
-- `json_handler.py`: Manages JSON data for posted and skipped news.
-- `lock_manager.py`: Ensures only one instance of the script runs at a time.
-- `requirements.txt`: Lists all dependencies required for the project.
-- `posted_news_ud.json`: Stores metadata of successfully posted news articles.
-- `skipped_news_ud.json`: Tracks articles that failed processing.
-
----
-
-### Setup
-1. Clone the repository.
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Configure environment variables in the `.env` file:
-   - `API_KEY`
-   - `SEARCH_ENGINE_ID`
-   - `TELEGRAM_BOT_TOKEN`
-   - `TELEGRAM_CHAT_ID`
-   - `TEAMS_WEBHOOK_URL`
-   - `RSS_FEED_URL`
-   - `RSS_COUNTRY_MAP`
-4. Run the script:
-   ```bash
-   python main.py
-
----
-
-### Dependencies
-- `beautifulsoup4`
-- `feedparser`
-- `newspaper3k`
-- `nltk`
-- `psutil`
-- `python-dotenv`
-- `requests`
-- `torch`
-- `transformers`
 
 ---
 
