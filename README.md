@@ -17,12 +17,12 @@
 - [Author](#author)  
 
 ---
-
+<a name="create_new_tables"></a>
 ## Overview
 CyberNewsBot is a news aggregation system that retrieves, processes, summarizes, and distributes cybersecurity-related articles from RSS feeds. It includes text cleaning, summarization, deduplication, and message delivery to platforms like Telegram and Microsoft Teams.
 
 ---
-
+<a name="project-structure"></a>
 ## Project Structure
 - `main.py`: Application entry point.  
 - `config.py`: Configuration and environment settings.  
@@ -37,7 +37,7 @@ CyberNewsBot is a news aggregation system that retrieves, processes, summarizes,
 - `skipped_news_ud.json`: Tracks articles that failed processing.  
 
 ---
-
+<a name="setup"></a>
 ## Setup
 1. Clone the repository.  
 2. Install dependencies:  
@@ -45,7 +45,7 @@ CyberNewsBot is a news aggregation system that retrieves, processes, summarizes,
    pip install -r requirements.txt
 
 ---
-
+<a name="configuration-file-configpy"></a>
 ### Configuration File: [`config.py`](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/config.py)
 
 The `config.py` file is a crucial component of the **CyberNewsBot** project, responsible for managing configurations, environment settings, and logging. Below is a structured overview of its functionality:
@@ -77,7 +77,7 @@ The `config.py` file is a crucial component of the **CyberNewsBot** project, res
   - Logs malformed or missing mappings
 
 ---
-
+<a name="json-handler-file-json_handlerpy"></a>
 ### JSON Handler File: [ `json_handler.py`](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/json_handler.py)
 
 The `json_handler.py` file is an essential component of the **CyberNewsBot** project, responsible for handling JSON data operations such as loading, saving, and processing. Below is a structured overview of its functionality:
@@ -105,7 +105,7 @@ The `json_handler.py` file is an essential component of the **CyberNewsBot** pro
   - Writes the filtered dataset back to disk and returns it.
 
 ---
-
+<a name="lock-manager-file-lock_managerpy"></a>
 ### Lock Manager File: [`lock_manager.py`](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/lock_manager.py)
 
 
@@ -136,7 +136,7 @@ The `lock_manager.py` module provides essential functions for managing lock file
 - It integrates with `psutil` to handle process management efficiently and reliably.
 
 ---
-
+<a name="main-script-file-mainpy"></a>
 ### Main Script File: [`main.py`](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/main.py)
 
 The `src/main.py` file serves as the main entry point for the **CyberNewsBot** application — a news aggregation, processing, and distribution tool. It orchestrates the overall execution flow, including news retrieval, filtering, messaging, and resource management.
@@ -158,7 +158,7 @@ The `src/main.py` file serves as the main entry point for the **CyberNewsBot** a
 - Removes the lock file as part of cleanup, ensuring future runs are not blocked.
 
 ---
-
+<a name="messaging-module-messagingpy"></a>
 ### Messaging Module: [`messaging.py`](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/messaging.py)
 
 The `messaging.py` file provides the **communication layer** for CyberNewsBot, enabling automated delivery of news summaries to **Telegram** and **Microsoft Teams** while enforcing deduplication, error-tolerance, and retry logic.
@@ -193,7 +193,7 @@ The `messaging.py` file provides the **communication layer** for CyberNewsBot, e
    - Updates `posted_news_ud.json` and `skipped_news_ud.json` through `save_posted_news()` / `save_skipped_news()`.
 
 ---
-
+<a name="news-retrieval-module-news_retrievalpy"></a>
 ### News Retrieval Module: [`news_retrieval.py`](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/news_retrieval.py)
 
 
@@ -206,7 +206,7 @@ The `news_retrieval.py` module is responsible for **fetching**, **processing**, 
 - **`filter_new_articles(articles)`** : Removes duplicates from the batch.
 
 ---
-
+<a name="summarization-module-summarizerpy"></a>
 ### Summarization Module: [`summarizer.py` ](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/summarizer.py)
 
 The `src/summarizer.py` module is a core component of the **CyberNewsBot** project. It provides powerful and flexible text summarization capabilities using state-of-the-art NLP models and efficient GPU/CPU handling.
@@ -248,7 +248,7 @@ print(summary)
 ```
 
 ---
-
+<a name="text-processing-module-text_processingpy"></a>
 ### Utility Module: [`text_processing.py`](https://github.com/nikitasonkin/CyberNewsBot/blob/main/src/text_processing.py)
 
 `text_processing.py` delivers the **core text-sanitizing toolkit** for CyberNewsBot.  
@@ -287,7 +287,7 @@ It standardizes URLs, titles, and article bodies; calculates relevance; extracts
   Generates SHA-256 hash of cleaned text → resilient identifier even if title/URL changes.
   
 ---
-
+<a name="output-files"></a>
 ### Output Files
 - ` posted_news_ud.json: All articles sent to Telegram/Teams `
 - `skipped_news_ud.json: Articles skipped with reason, timestamp, and fail count`
@@ -295,9 +295,10 @@ It standardizes URLs, titles, and article bodies; calculates relevance; extracts
 - ` run_times.txt: Each run’s timestamp`
 
 ---
-
+<a name="license"></a>
 ### License
 -`This project is licensed under the MIT License.`
 
+<a name="author"></a>
 ### Author
 Created and maintained by Nikita Sonkin.
